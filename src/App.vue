@@ -1,5 +1,5 @@
 <template>
-  <HomeView></HomeView>
+  <HomeView id="app"></HomeView>
   <!--  example of router link, hide now-->
   <!--  <div v-if=true>-->
   <!--    <router-link to="/">Home</router-link>-->
@@ -30,5 +30,17 @@ export default {
   /*text-align: center;*/
   /*color: #2c3e50;*/
   /*margin-top: 60px;*/
+}
+</style>
+<style>
+html{
+  background-color: #bcd6d2;;
+  margin: 0;
+  height: 100%;
+}
+body{
+  background-color: #bcd6d2;;
+  height: auto;
+  overflow: auto;
 }
 </style>

@@ -12,16 +12,16 @@
             :visible.sync="sideMenuBarOpen"
             :direction="direction"
             ref="menuDrawer">
-          <span>
-            <div v-if="page !== 0" class="menu-bar-text" @click="openUM">User Management</div>
-            <div v-if="page !== 1" class="menu-bar-text" @click="openHM">House Management</div>
-            <div v-if="page !== 2" class="menu-bar-text" @click="openPM">Parameter Management</div>
+          <span v-for="item in menuItemList" :key="item.name">
+            <div v-if="page !== item.page" class="menu-bar-text" @click="menuOpenItem(item.page)">{{ item.name }}</div>
           </span>
+
         </el-drawer>
 
-        <user-management v-if="page === 0"></user-management>
+        <device-management v-if="page === 0"></device-management>
         <house-management v-if="page === 1"></house-management>
         <parameter-management v-if="page === 2"></parameter-management>
+        <user-management v-if="page === 3"></user-management>
       </div>
     </div>
   </div>
@@ -32,10 +32,16 @@ import {mapGetters, mapMutations} from "vuex";
 import UserManagement from "@/components/userManagement";
 import HouseManagement from "@/components/houseManagement";
 import ParameterManagement from "@/components/parameterManagement";
+import DeviceManagement from "@/components/deviceManagement";
 
 export default {
   name: 'HelloWorld',
-  components: {ParameterManagement, HouseManagement, UserManagement},
+  components: {
+    DeviceManagement,
+    ParameterManagement,
+    HouseManagement,
+    UserManagement
+  },
   props: {
     msg: String
   },
@@ -43,52 +49,74 @@ export default {
     return {
       sideMenuBarOpen: false, // controls side bar open or not
       direction: 'ltr', // side bar open direction (short for 'left to right')
+      menuItemList: [
+        {
+          name: "User Management",
+          page: 3
+        },
+        {
+          name: "House Management",
+          page: 1
+        },
+        {
+          name: "Parameter Management",
+          page: 2
+        },
+        {
+          name: "Device Management",
+          page: 0
+        },
+        {
+          name: "House Parameter Management",
+          page: 4
+        },
+      ], // menu bar item list and according page numbers
     }
   },
-  computed:{
-    ...mapGetters("system",["page", "loading"])
+  computed: {
+    ...mapGetters("system", ["page", "loading"])
   },
 
   methods: {
     ...mapMutations("system/", ["set_page"]),
-    // click slide bar to open user management page
-    openUM(){
-      this.set_page(0);
-      console.log("open user management")
+    // click slide bar item to open other pages
+    menuOpenItem(page) {
+      this.set_page(page);
       this.$refs.menuDrawer.closeDrawer(); // close side bar after click other pages
     },
-    // click slide bar to open house management page
-    openHM(){
-      this.set_page(1);
-      console.log("open house management")
-      this.$refs.menuDrawer.closeDrawer(); // close side bar after click other pages
-    },
-    // click slide bar to open parameter management page
-    openPM(){
-      this.set_page(2);
-      console.log("open parameter management")
-      this.$refs.menuDrawer.closeDrawer(); // close side bar after click other pages
-    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.home-title{
+.home{
+  background-color: #bcd6d2;;
+  height: 100%;
+}
+.home-title {
   font-weight: 400;
   font-size: 2vw;
   text-align: center;
   margin: 20px;
 }
 
-.menu-bar-text{
+.home-main-body{
+  /*height: 100vh;*/
+  min-height: 100vh;
+}
+
+.home-user-list-body{
+  /*height: 100%;*/
+}
+
+.menu-bar-text {
   padding: 1vh 1vw;
   font-size: 1.5vw;
   /*background-color: azure;*/
 }
 
-.menu-bar-text:hover{
+.menu-bar-text:hover {
   background-color: #ddd;
   transition: background-color 0.45s ease-out;
   cursor: pointer;
