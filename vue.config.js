@@ -10,15 +10,15 @@ module.exports = {
     //   warnings: false,
     //   errors: true
     // },
-    proxy: {
-      '/api': {
-          target: 'http://localhost:8080/',
-          ws: true,
-          logLevel: 'debug',
-          // pathRewrite: {
-          //     '^/dev-api': '/'
-          // }
-      },
-    },
+    // proxy: {
+    //   '/api': {
+    //       target: 'http://localhost:8080/',
+    //       ws: true,
+    //       logLevel: 'debug',
+    //       // pathRewrite: {
+    //       //     '^/dev-api': '/'
+    //       // }
+    //   },
+    // },
   }
 }

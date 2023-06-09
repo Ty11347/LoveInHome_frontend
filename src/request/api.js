@@ -3,10 +3,10 @@ import {post} from './http'
 
 const apiAddress = {
     fmLogin: (param) => {
-        return post('/api/fm/login', param)
+        return post('http://localhost:8080/api/fm/login', param)
     },
     fmRegister: (param) => {
-        return post('/api/fm/register', param)
+        return post('http://localhost:8080/api/fm/register', param)
     },
 }
 
