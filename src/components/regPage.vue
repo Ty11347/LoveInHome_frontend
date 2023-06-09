@@ -61,12 +61,12 @@ export default {
     register() {
       this.validateInput(this.username);
       this.validateInput(this.password);
-      if (this.password !== this.confirmPassword) {
-        this.regFail(3);
-        return;
-      }
       if (this.username === '' || this.password === '' || this.confirmPassword === '') {
         this.regFail(1);
+        return;
+      }
+      if (this.password !== this.confirmPassword) {
+        this.regFail(3);
         return;
       }
       if (acc.find(item => item.username === this.username) !== undefined) {
@@ -78,7 +78,13 @@ export default {
               password: this.password
             }
         )
-        this.set_page(99);
+        this.$message({
+          message: 'Register Success!',
+          type: 'success'
+        });
+        setTimeout(() => {
+          this.set_page(99);
+        }, 3000);
       }
     },
     regFail(code) {
