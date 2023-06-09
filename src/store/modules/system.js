@@ -1,5 +1,5 @@
 const state = {
-  page: 0,
+  page: 99,
   loading: false,
 }
 

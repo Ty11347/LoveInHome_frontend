@@ -1,29 +1,35 @@
 <template>
-  <div class="home">
-    <div class="home-title">LovInHome Management System</div>
-    <div class="home-main-body">
-      <div class="home-user-list-body">
-        <el-button @click="sideMenuBarOpen = true" style="position: fixed; left: 2vw; top: 3vh; font-size: 1vw">
-          MENU
-        </el-button>
+  <div>
+    <div class="home" v-if="page !== 99 && page !== 100">
+      <div class="home-title">LovInHome Management System</div>
+      <div class="home-main-body">
+        <div class="home-user-list-body">
+          <el-button @click="sideMenuBarOpen = true" style="position: fixed; left: 2vw; top: 3vh; font-size: 1vw">
+            MENU
+          </el-button>
 
-        <el-drawer
-            title="MENU"
-            :visible.sync="sideMenuBarOpen"
-            :direction="direction"
-            ref="menuDrawer">
+          <el-drawer
+              title="MENU"
+              :visible.sync="sideMenuBarOpen"
+              :direction="direction"
+              ref="menuDrawer">
           <span v-for="item in menuItemList" :key="item.name">
             <div v-if="page !== item.page" class="menu-bar-text" @click="menuOpenItem(item.page)">{{ item.name }}</div>
           </span>
 
-        </el-drawer>
+          </el-drawer>
 
-        <device-management v-if="page === 0"></device-management>
-        <house-management v-if="page === 1"></house-management>
-        <parameter-management v-if="page === 2"></parameter-management>
-        <user-management v-if="page === 3"></user-management>
+          <device-management v-if="page === 0"></device-management>
+          <house-management v-if="page === 1"></house-management>
+          <parameter-management v-if="page === 2"></parameter-management>
+          <user-management v-if="page === 3"></user-management>
+
+
+        </div>
       </div>
     </div>
+    <login-page v-if="page === 99"></login-page>
+    <reg-page v-if="page === 100"></reg-page>
   </div>
 </template>
 
@@ -33,10 +39,14 @@ import UserManagement from "@/components/userManagement";
 import HouseManagement from "@/components/houseManagement";
 import ParameterManagement from "@/components/parameterManagement";
 import DeviceManagement from "@/components/deviceManagement";
+import LoginPage from "@/components/loginPage";
+import RegPage from "@/components/regPage";
 
 export default {
   name: 'HelloWorld',
   components: {
+    RegPage,
+    LoginPage,
     DeviceManagement,
     ParameterManagement,
     HouseManagement,
@@ -70,6 +80,10 @@ export default {
           name: "House Parameter Management",
           page: 4
         },
+        {
+          name: "Log Out",
+          page: 99
+        }
       ], // menu bar item list and according page numbers
     }
   },
