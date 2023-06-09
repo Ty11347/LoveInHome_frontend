@@ -27,6 +27,7 @@
 
 import acc from "../accounts/account";
 import {mapMutations} from "vuex";
+import api from "../request/api"
 
 export default {
   name: "loginPage",
@@ -69,28 +70,49 @@ export default {
         this.regFail(3);
         return;
       }
-      if (acc.find(item => item.username === this.username) !== undefined) {
-        this.regFail(2);
-      } else {
-        acc.push(
-            {
-              username: this.username,
-              password: this.password
-            }
-        )
-        this.$message({
-          message: 'Register Success!',
-          type: 'success'
-        });
-        setTimeout(() => {
-          this.set_page(99);
-        }, 3000);
-      }
+
+      api.fmRegister({
+        username: this.username,
+        password: this.password
+      }).then(res => {
+        if (res.status === 200){
+          this.$message({
+            message: 'Register Success!',
+            type: 'success'
+          });
+          setTimeout(() => {
+            this.set_page(99);
+          }, 3000);
+        } else if (res.status === 400){
+          this.regFail(2);
+        } else {
+          this.regFail(99);
+        }
+      })
+
+      // if (acc.find(item => item.username === this.username) !== undefined) {
+      //   this.regFail(2);
+      // } else {
+      //   acc.push(
+      //       {
+      //         username: this.username,
+      //         password: this.password
+      //       }
+      //   )
+      //   this.$message({
+      //     message: 'Register Success!',
+      //     type: 'success'
+      //   });
+      //   setTimeout(() => {
+      //     this.set_page(99);
+      //   }, 3000);
+      // }
     },
     regFail(code) {
       var loginBtn = document.getElementById("login-btn");
       loginBtn.style.transition = "all 0.2s";
       if (code === 0) {
+        // unreached statement
         loginBtn.innerText = "Invalid Username/Password";
       } else if (code === 1) {
         loginBtn.innerText = "Empty Username/Password";
@@ -98,6 +120,8 @@ export default {
         loginBtn.innerText = "User Exists";
       } else if (code === 3) {
         loginBtn.innerText = "Passwords Are Not Identical";
+      } else if (code === 99) {
+        loginBtn.innerText = "Error";
       }
       loginBtn.style.backgroundColor = "#ff5555";
       this.password = "";

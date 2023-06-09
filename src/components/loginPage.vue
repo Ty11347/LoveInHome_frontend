@@ -26,8 +26,9 @@
 
 <script>
 
-import acc from "../accounts/account";
+// import acc from "../accounts/account";
 import {mapMutations} from "vuex";
+import api from "../request/api"
 
 export default {
   name: "regPage",
@@ -55,28 +56,47 @@ export default {
   //方法集合
   methods: {
     ...mapMutations("system/", ["set_page"]),
-    validateInput(input){
+    validateInput(input) {
       return JSON.stringify(input).trim();
     },
     login() {
+
       this.validateInput(this.username);
       this.validateInput(this.password);
-      if (this.username === '' || this.password === ''){
+      if (this.username === '' || this.password === '') {
         this.loginFail(1);
-        return
+        return;
       }
-      if (acc.find(item => item.username === this.username && item.password === this.password) !== undefined) {
-        this.set_page(0);
-      } else {
-        this.loginFail(0);
-      }
+
+      // login fail handle with api
+      api.fmLogin({
+        username: this.username,
+        password: this.password
+      }).then(res => {
+        if (res.status === 200) {
+          this.set_page(0);
+        } else {
+          this.loginFail(0);
+        }
+      });
+
+      // login fail handle without backend api
+      // if (acc.find(item => item.username === this.username && item.password === this.password) !== undefined) {
+      //   this.set_page(0);
+      // } else {
+      //   this.loginFail(0);
+      // }
     },
     loginFail(code) {
+      // change login page appearance login status
       var loginBtn = document.getElementById("login-btn");
       loginBtn.style.transition = "all 0.2s";
-      if (code === 0){
+      // when invalid login
+      if (code === 0) {
         loginBtn.innerText = "Invalid Username/Password";
-      } else if (code === 1){
+      }
+      // when input is empty
+      else if (code === 1) {
         loginBtn.innerText = "Empty Username/Password";
       }
       loginBtn.style.backgroundColor = "#ff5555";
@@ -89,7 +109,7 @@ export default {
       }, 1500);
     },
 
-    toReg(){
+    toReg() {
       this.set_page(100);
     }
   },
