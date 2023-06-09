@@ -60,7 +60,7 @@ export default {
       return JSON.stringify(input).trim();
     },
     login() {
-
+      // handle input
       this.validateInput(this.username);
       this.validateInput(this.password);
       if (this.username === '' || this.password === '') {

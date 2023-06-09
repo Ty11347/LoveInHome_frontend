@@ -53,7 +53,6 @@ export default {
     UserManagement
   },
   props: {
-    msg: String
   },
   data() {
     return {

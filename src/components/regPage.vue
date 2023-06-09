@@ -25,7 +25,7 @@
 
 <script>
 
-import acc from "../accounts/account";
+// import acc from "../accounts/account";
 import {mapMutations} from "vuex";
 import api from "../request/api"
 
@@ -34,9 +34,10 @@ export default {
   data() {
     //这里存放数据
     return {
-      username: '',
-      password: '',
-      confirmPassword: '',
+      username: '', // temp store user input username
+      password: '', // temp store user input password
+      confirmPassword: '', // temp store user input confirm-password
+      // sample accounts data
       account: [
         {
           username: "tianyi",
@@ -56,39 +57,48 @@ export default {
   //方法集合
   methods: {
     ...mapMutations("system/", ["set_page"]),
+    // strip spaces and stringify input
     validateInput(input) {
       return JSON.stringify(input).trim();
     },
+
     register() {
+      // handle input
       this.validateInput(this.username);
       this.validateInput(this.password);
       if (this.username === '' || this.password === '' || this.confirmPassword === '') {
-        this.regFail(1);
+        this.regFail(1); // tell user at least one input is empty
         return;
       }
       if (this.password !== this.confirmPassword) {
-        this.regFail(3);
+        this.regFail(3); // tell user confirm password is not valid
         return;
       }
 
+      // call api to register
       api.fmRegister({
         username: this.username,
         password: this.password
       }).then(res => {
+        // if register success, return to login page
         if (res.status === 200){
           this.$message({
             message: 'Register Success!',
             type: 'success'
           });
           setTimeout(() => {
-            this.set_page(99);
+            this.toLogin()
           }, 3000);
-        } else if (res.status === 400){
+        } // if 400, user exists
+        else if (res.status === 400){
           this.regFail(2);
-        } else {
-          this.regFail(99);
+        } // handle any thing other than 200/400 error
+        else {
+          this.regFail(99); // tell user an error happen
         }
       })
+
+      // register without backend api
 
       // if (acc.find(item => item.username === this.username) !== undefined) {
       //   this.regFail(2);
@@ -108,6 +118,8 @@ export default {
       //   }, 3000);
       // }
     },
+
+    // handle register failures by change the appearance of the "Register" button
     regFail(code) {
       var loginBtn = document.getElementById("login-btn");
       loginBtn.style.transition = "all 0.2s";
@@ -134,6 +146,7 @@ export default {
       }, 1500);
     },
 
+    // after register success, back to login page (99)
     toLogin() {
       this.set_page(99);
     }
