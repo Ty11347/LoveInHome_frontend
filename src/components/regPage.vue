@@ -97,6 +97,7 @@ export default {
       loginBtn.style.backgroundColor = "#ff5555";
       this.password = "";
       this.username = "";
+      this.confirmPassword = "";
       setTimeout(() => {
         loginBtn.style.transition = "all 0.5s";
         loginBtn.innerText = "Login";
