@@ -69,9 +69,8 @@ export default {
         this.regFail(1);
         return;
       }
-      if (acc.find(item => item.username === this.username && item.password === this.password) !== undefined) {
+      if (acc.find(item => item.username === this.username) !== undefined) {
         this.regFail(2);
-        return;
       } else {
         acc.push(
             {
