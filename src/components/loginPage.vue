@@ -26,7 +26,7 @@
 
 <script>
 
-// import acc from "../accounts/account";
+import acc from "../accounts/account";
 import {mapMutations} from "vuex";
 import api from "../request/api"
 
@@ -71,8 +71,9 @@ export default {
       // login fail handle with api
       api.fmLogin({
         username: this.username,
-        password: this.password
-      }).then(res => {
+        password: this.password}
+        //  api.fmLogin(this.username, this.password
+      ).then(res => {
         if (res.status === 200) {
           this.set_page(0);
         } else {
@@ -83,6 +84,7 @@ export default {
       // login fail handle without backend api
       // if (acc.find(item => item.username === this.username && item.password === this.password) !== undefined) {
       //   this.set_page(0);
+      //   sessionStorage.setItem("username", this.username);
       // } else {
       //   this.loginFail(0);
       // }
@@ -111,6 +113,14 @@ export default {
 
     toReg() {
       this.set_page(100);
+    }
+  },
+  //生命周期 - 创建完成（可以访问当前this实例）
+  created() {
+    if (sessionStorage.getItem("username") !== undefined) {
+      if (sessionStorage.getItem("page") !== undefined) {
+        this.set_page(sessionStorage.getItem("page"));
+      } else this.set_page(0);
     }
   },
 }

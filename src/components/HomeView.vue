@@ -76,10 +76,6 @@ export default {
           page: 0
         },
         {
-          name: "House Parameter Management",
-          page: 4
-        },
-        {
           name: "Log Out",
           page: 99
         }
@@ -94,6 +90,10 @@ export default {
     ...mapMutations("system/", ["set_page"]),
     // click slide bar item to open other pages
     menuOpenItem(page) {
+      if (page === 99){
+        sessionStorage.setItem("username", undefined);
+        sessionStorage.setItem("page", undefined);
+      }
       this.set_page(page);
       this.$refs.menuDrawer.closeDrawer(); // close side bar after click other pages
     },
