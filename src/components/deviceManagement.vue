@@ -66,6 +66,8 @@
 </template>
 
 <script>
+import api from "../request/api"
+
 export default {
   name: "deviceManagement",
   data() {
@@ -149,31 +151,73 @@ export default {
     empty() {
 
     },
+    formatApi(data) {
+      return JSON.parse(JSON.stringify(data))
+    },
     initStateData() {
-      this.allDeviceInfo.forEach(device => {
-        device.state = device.state === "ON";
-      });
+      // with api
+      api.getAllDevice().then(res => {
+        res = this.formatApi(res);
+        if (res.status === 200) {
+          this.allDeviceInfo = res.data;
+          this.allDeviceInfo.forEach(device => {
+            device.state = device.state === "ON";
+          });
+        } else {
+          this.$message({
+            message: 'Error: Fetch Data fail',
+            type: 'warning'
+          });
+          setTimeout(() => {
+            this.initStateData(); // recursively try to fetch data
+          }, 1000);
+        }
+      })
+
+      // without api
+      // this.allDeviceInfo.forEach(device => {
+      //   device.state = device.state === "ON";
+      // });
     },
 
     deleteItem(id, serial, type) {
-      console.log("son click");
-      console.log(id);
       this.$confirm('Confirm to Delete this ' + type + ' Device?', 'Delete', {
         confirmButtonText: 'Confirm',
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
-        console.log(this.allDeviceInfo);
-        this.allDeviceInfo = this.allDeviceInfo.filter(item => item.id !== id);
-        this.$message({
-          type: 'success',
-          message: 'Delete Success'
+        // with api
+        api.deleteDevice(id).then(res => {
+          if (res.status === 200) {
+            this.initStateData();
+            this.$message({
+              type: 'success',
+              message: 'Delete Success'
+            });
+          } else {
+            this.$message({
+              type: 'warning',
+              message: 'Error: Delete Fail'
+            });
+          }
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: 'Cancel Delete'
+          });
         });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: 'Cancel Delete'
-        });
+
+        // without api
+        //   this.allDeviceInfo = this.allDeviceInfo.filter(item => item.id !== id);
+        //   this.$message({
+        //     type: 'success',
+        //     message: 'Delete Success'
+        //   });
+        // }).catch(() => {
+        //   this.$message({
+        //     type: 'info',
+        //     message: 'Cancel Delete'
+        //   });
       });
     },
 
@@ -188,11 +232,32 @@ export default {
     },
 
     confirmModal() {
-      const index = this.allDeviceInfo.findIndex(item => item.id === this.tempModalData.id);
-      if (index !== -1) {
-        this.allDeviceInfo[index] = this.tempModalData;
-      }
-      this.closeModal();
+      // with api
+      api.updateDevice(this.tempModalData.id, {
+        serialNum: this.tempModalData.serialNum,
+        type: this.tempModalData.type,
+        state: this.tempModalData.state
+      }).then(res => {
+        if (res.status === 200){
+          this.$message({
+            type: 'success',
+            message: 'Update Success'
+          });
+          this.closeModal();
+        } else {
+          this.$message({
+            type: 'warning',
+            message: 'Update Failed'
+          });
+        }
+      })
+
+      // without api
+      // const index = this.allDeviceInfo.findIndex(item => item.id === this.tempModalData.id);
+      // if (index !== -1) {
+      //   this.allDeviceInfo[index] = this.tempModalData;
+      // }
+      // this.closeModal();
     },
 
     dcp(obj) {
