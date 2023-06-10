@@ -2,6 +2,7 @@
   <div class="view-wrapper">
     <div class="device-title">
       Devices
+      <el-button style="margin-left: auto" @click="addDevice">Add Device</el-button>
     </div>
     <div class="device-item-wrapper">
       <div v-for="item in allDeviceInfo" :key="item.id" class="device-item" @click="clickDevice(item)">
@@ -50,7 +51,7 @@
           <el-form-item label="Device State">
             <el-switch v-model="tempModalData.state"></el-switch>
           </el-form-item>
-          <div style="text-align: center">
+          <div style="text-align: center" v-if="tempModalData.id !== undefined">
             <span>Device ID </span>
             <span style="font-family: Courier New,monospace; font-weight: 600">{{ tempModalData.id }}</span>
           </div>
@@ -58,7 +59,7 @@
       </div>
       <template #footer>
         <Button size="large" @click="closeModal" id="cancel-btn">Cancel</Button>
-        <Button size="large" @click="confirmModal" id="confirm-btn">Confirm</Button>
+        <Button size="large" @click="confirmModal(addOrUpdate)" id="confirm-btn">Confirm</Button>
       </template>
     </Modal>
 
@@ -144,6 +145,7 @@ export default {
       deviceModalStatus: false,
       deviceSelected: {},
       tempModalData: {},
+      addOrUpdate: 0, // 0 for add 1 for update
     }
   },
   watch: {},
@@ -154,30 +156,31 @@ export default {
     formatApi(data) {
       return JSON.parse(JSON.stringify(data))
     },
+    // format all device data and store to local variable: this.allDeviceInfo
     initStateData() {
       // with api
-      api.getAllDevice().then(res => {
-        res = this.formatApi(res);
-        if (res.status === 200) {
-          this.allDeviceInfo = res.data;
-          this.allDeviceInfo.forEach(device => {
-            device.state = device.state === "ON";
-          });
-        } else {
-          this.$message({
-            message: 'Error: Fetch Data fail',
-            type: 'warning'
-          });
-          setTimeout(() => {
-            this.initStateData(); // recursively try to fetch data
-          }, 1000);
-        }
-      })
+      // api.getAllDevice().then(res => {
+      //   res = this.formatApi(res);
+      //   if (res.status === 200) {
+      //     this.allDeviceInfo = res.data;
+      //     this.allDeviceInfo.forEach(device => {
+      //       device.state = device.state === "ON";
+      //     });
+      //   } else {
+      //     this.$message({
+      //       message: 'Error: Fetch Data fail',
+      //       type: 'warning'
+      //     });
+      //     setTimeout(() => {
+      //       this.initStateData(); // recursively try to fetch data
+      //     }, 1000);
+      //   }
+      // })
 
       // without api
-      // this.allDeviceInfo.forEach(device => {
-      //   device.state = device.state === "ON";
-      // });
+      this.allDeviceInfo.forEach(device => {
+        device.state = device.state === "ON";
+      });
     },
 
     deleteItem(id, serial, type) {
@@ -187,37 +190,40 @@ export default {
         type: 'warning'
       }).then(() => {
         // with api
-        api.deleteDevice(id).then(res => {
-          if (res.status === 200) {
-            this.initStateData();
-            this.$message({
-              type: 'success',
-              message: 'Delete Success'
-            });
-          } else {
-            this.$message({
-              type: 'warning',
-              message: 'Error: Delete Fail'
-            });
-          }
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: 'Cancel Delete'
-          });
-        });
-
-        // without api
-        //   this.allDeviceInfo = this.allDeviceInfo.filter(item => item.id !== id);
-        //   this.$message({
-        //     type: 'success',
-        //     message: 'Delete Success'
-        //   });
+        // api.deleteDevice(id).then(res => {
+        //   // if status code is 200, format all device data and store to local variable: this.allDeviceInfo
+        //   if (res.status === 200) {
+        //     this.initStateData();
+        //     this.$message({
+        //       type: 'success',
+        //       message: 'Delete Success'
+        //     });
+        //   } // if status is not 200, show an error message
+        //   else {
+        //     this.$message({
+        //       type: 'warning',
+        //       message: 'Error: Delete Fail'
+        //     });
+        //   }
         // }).catch(() => {
+        //   // if user cancel delete, show message
         //   this.$message({
         //     type: 'info',
         //     message: 'Cancel Delete'
         //   });
+        // });
+
+        // without api
+        this.allDeviceInfo = this.allDeviceInfo.filter(item => item.id !== id);
+        this.$message({
+          type: 'success',
+          message: 'Delete Success'
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: 'Cancel Delete'
+        });
       });
     },
 
@@ -225,39 +231,78 @@ export default {
       this.deviceSelected = device;
       this.tempModalData = JSON.parse(JSON.stringify(this.deviceSelected));
       this.deviceModalStatus = true;
+      this.addOrUpdate = 1;
+    },
+
+    addDevice() {
+      this.deviceModalStatus = true;
+      this.addOrUpdate = 0;
+      this.tempModalData = {};
+      this.tempModalData = {
+        serialNum: "",
+        type: "",
+        state: true
+      };
     },
 
     closeModal() {
       this.deviceModalStatus = false;
     },
 
-    confirmModal() {
+    confirmModal(code) {
       // with api
-      api.updateDevice(this.tempModalData.id, {
-        serialNum: this.tempModalData.serialNum,
-        type: this.tempModalData.type,
-        state: this.tempModalData.state
-      }).then(res => {
-        if (res.status === 200){
-          this.$message({
-            type: 'success',
-            message: 'Update Success'
-          });
-          this.closeModal();
-        } else {
-          this.$message({
-            type: 'warning',
-            message: 'Update Failed'
-          });
-        }
-      })
+      // if (code === 0){
+      //   api.addDevice( {
+      //     serialNum: this.tempModalData.serialNum,
+      //     type: this.tempModalData.type,
+      //     state: this.tempModalData.state? "ON" : "OFF"
+      //   }).then(res => {
+      //     if (res.status === 200){
+      //       this.$message({
+      //         type: 'success',
+      //         message: 'Add New Device Success'
+      //       });
+      //       this.closeModal();
+      //     } else {
+      //       this.$message({
+      //         type: 'warning',
+      //         message: 'Add New Device Failed'
+      //       });
+      //     }
+      //   })
+      // } else if (code === 1){
+      //   api.updateDevice(this.tempModalData.id, {
+      //     serialNum: this.tempModalData.serialNum,
+      //     type: this.tempModalData.type,
+      //     state: this.tempModalData.state? "ON" : "OFF"
+      //   }).then(res => {
+      //     if (res.status === 200){
+      //       this.$message({
+      //         type: 'success',
+      //         message: 'Update Success'
+      //       });
+      //       this.closeModal();
+      //     } else {
+      //       this.$message({
+      //         type: 'warning',
+      //         message: 'Update Failed'
+      //       });
+      //     }
+      //   })
+      // }
+      console.log(this.tempModalData);
 
       // without api
-      // const index = this.allDeviceInfo.findIndex(item => item.id === this.tempModalData.id);
-      // if (index !== -1) {
-      //   this.allDeviceInfo[index] = this.tempModalData;
-      // }
-      // this.closeModal();
+      if (code === 1) {
+        const index = this.allDeviceInfo.findIndex(item => item.id === this.tempModalData.id);
+        if (index !== -1) {
+          this.allDeviceInfo[index] = this.tempModalData;
+        }
+      } else {
+        console.log(this.tempModalData);
+      }
+
+      this.closeModal();
     },
 
     dcp(obj) {
@@ -348,6 +393,7 @@ export default {
 
 .device-title {
   /*color: #AAABBB;*/
+  display: flex;
   font-size: 3vh;
   margin: 2vw auto;
   width: 70vw;
