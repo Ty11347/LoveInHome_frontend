@@ -41,7 +41,7 @@
         </p>
       </template>
       <div>
-        <el-form label-position="right" label-width="auto" :model="tempModalData">
+        <el-form label-position="right" label-width="120px" :model="tempModalData">
           <el-form-item label="Serial Number">
             <el-input v-model="tempModalData.serialNum"></el-input>
           </el-form-item>
@@ -159,28 +159,28 @@ export default {
     // format all device data and store to local variable: this.allDeviceInfo
     initStateData() {
       // with api
-      // api.getAllDevice().then(res => {
-      //   res = this.formatApi(res);
-      //   if (res.status === 200) {
-      //     this.allDeviceInfo = res.data;
-      //     this.allDeviceInfo.forEach(device => {
-      //       device.state = device.state === "ON";
-      //     });
-      //   } else {
-      //     this.$message({
-      //       message: 'Error: Fetch Data fail',
-      //       type: 'warning'
-      //     });
-      //     setTimeout(() => {
-      //       this.initStateData(); // recursively try to fetch data
-      //     }, 1000);
-      //   }
-      // })
+      api.getAllDevice().then(res => {
+        res = this.formatApi(res);
+        if (res.status === 200) {
+          this.allDeviceInfo = res.data;
+          this.allDeviceInfo.forEach(device => {
+            device.state = device.state === "ON";
+          });
+        } else {
+          this.$message({
+            message: 'Error: Fetch Data fail',
+            type: 'warning'
+          });
+          setTimeout(() => {
+            this.initStateData(); // recursively try to fetch data
+          }, 1000);
+        }
+      })
 
       // without api
-      this.allDeviceInfo.forEach(device => {
-        device.state = device.state === "ON";
-      });
+      // this.allDeviceInfo.forEach(device => {
+      //   device.state = device.state === "ON";
+      // });
     },
 
     deleteItem(id, serial, type) {
@@ -190,35 +190,35 @@ export default {
         type: 'warning'
       }).then(() => {
         // with api
-        // api.deleteDevice(id).then(res => {
-        //   // if status code is 200, format all device data and store to local variable: this.allDeviceInfo
-        //   if (res.status === 200) {
-        //     this.initStateData();
-        //     this.$message({
-        //       type: 'success',
-        //       message: 'Delete Success'
-        //     });
-        //   } // if status is not 200, show an error message
-        //   else {
-        //     this.$message({
-        //       type: 'warning',
-        //       message: 'Error: Delete Fail'
-        //     });
-        //   }
-        // }).catch(() => {
-        //   // if user cancel delete, show message
-        //   this.$message({
-        //     type: 'info',
-        //     message: 'Cancel Delete'
-        //   });
-        // });
+        api.deleteDevice(id).then(res => {
+          // if status code is 200, format all device data and store to local variable: this.allDeviceInfo
+          if (res.status === 200) {
+            this.initStateData();
+            this.$message({
+              type: 'success',
+              message: 'Delete Success'
+            });
+          } // if status is not 200, show an error message
+          else {
+            this.$message({
+              type: 'warning',
+              message: 'Error: Delete Fail'
+            });
+          }
+        }).catch(() => {
+          // if user cancel delete, show message
+          this.$message({
+            type: 'info',
+            message: 'Cancel Delete'
+          });
+        });
 
         // without api
-        this.allDeviceInfo = this.allDeviceInfo.filter(item => item.id !== id);
-        this.$message({
-          type: 'success',
-          message: 'Delete Success'
-        });
+        // this.allDeviceInfo = this.allDeviceInfo.filter(item => item.id !== id);
+        // this.$message({
+        //   type: 'success',
+        //   message: 'Delete Success'
+        // });
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -251,56 +251,55 @@ export default {
 
     confirmModal(code) {
       // with api
-      // if (code === 0){
-      //   api.addDevice( {
-      //     serialNum: this.tempModalData.serialNum,
-      //     type: this.tempModalData.type,
-      //     state: this.tempModalData.state? "ON" : "OFF"
-      //   }).then(res => {
-      //     if (res.status === 200){
-      //       this.$message({
-      //         type: 'success',
-      //         message: 'Add New Device Success'
-      //       });
-      //       this.closeModal();
-      //     } else {
-      //       this.$message({
-      //         type: 'warning',
-      //         message: 'Add New Device Failed'
-      //       });
-      //     }
-      //   })
-      // } else if (code === 1){
-      //   api.updateDevice(this.tempModalData.id, {
-      //     serialNum: this.tempModalData.serialNum,
-      //     type: this.tempModalData.type,
-      //     state: this.tempModalData.state? "ON" : "OFF"
-      //   }).then(res => {
-      //     if (res.status === 200){
-      //       this.$message({
-      //         type: 'success',
-      //         message: 'Update Success'
-      //       });
-      //       this.closeModal();
-      //     } else {
-      //       this.$message({
-      //         type: 'warning',
-      //         message: 'Update Failed'
-      //       });
-      //     }
-      //   })
-      // }
-      console.log(this.tempModalData);
+      if (code === 0){
+        api.addDevice( {
+          serialNum: this.tempModalData.serialNum,
+          type: this.tempModalData.type,
+          state: this.tempModalData.state? "ON" : "OFF"
+        }).then(res => {
+          if (res.status === 200){
+            this.$message({
+              type: 'success',
+              message: 'Add New Device Success'
+            });
+            this.closeModal();
+          } else {
+            this.$message({
+              type: 'warning',
+              message: 'Add New Device Failed'
+            });
+          }
+        })
+      } else if (code === 1){
+        api.updateDevice(this.tempModalData.id, {
+          serialNum: this.tempModalData.serialNum,
+          type: this.tempModalData.type,
+          state: this.tempModalData.state? "ON" : "OFF"
+        }).then(res => {
+          if (res.status === 200){
+            this.$message({
+              type: 'success',
+              message: 'Update Success'
+            });
+            this.closeModal();
+          } else {
+            this.$message({
+              type: 'warning',
+              message: 'Update Failed'
+            });
+          }
+        })
+      }
 
       // without api
-      if (code === 1) {
-        const index = this.allDeviceInfo.findIndex(item => item.id === this.tempModalData.id);
-        if (index !== -1) {
-          this.allDeviceInfo[index] = this.tempModalData;
-        }
-      } else {
-        console.log(this.tempModalData);
-      }
+      // if (code === 1) {
+      //   const index = this.allDeviceInfo.findIndex(item => item.id === this.tempModalData.id);
+      //   if (index !== -1) {
+      //     this.allDeviceInfo[index] = this.tempModalData;
+      //   }
+      // } else {
+      //   console.log(this.tempModalData);
+      // }
 
       this.closeModal();
     },
