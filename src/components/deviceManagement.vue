@@ -4,33 +4,38 @@
       Devices
       <el-button style="margin-left: auto" @click="addDevice">Add Device</el-button>
     </div>
-    <div class="device-item-wrapper">
+    <div class="device-item-wrapper" v-if="refresh">
       <div v-for="item in allDeviceInfo" :key="item.id" class="device-item" @click="clickDevice(item)">
-        <el-row>
-          <el-col :span="16">
-            <div style="display: flex">
-              <div class="device-serial-text">
-                <div class="device-item-title-text">Serial Number:</div>
-                <div class="device-item-text">{{ item.serialNum }}</div>
-              </div>
-              <div class="device-type-text">
-                <div class="device-item-title-text">Type of Device:</div>
-                <div class="device-item-text">{{ item.type }}</div>
-              </div>
+        <!--          <el-col :span="16">-->
+        <div>
+          <div style="display: flex">
+            <div class="device-serial-text">
+              <div class="device-item-title-text">Serial Number:</div>
+              <div class="device-item-text">{{ item.serialNum }}</div>
             </div>
-          </el-col>
-          <el-col :span="6" style="line-height: 12vh; text-align: right">
-            <div class="device-state-text">Device Status</div>
-            <el-switch
-                v-model="item.state"
-                active-color="#13ce66"
-                inactive-color="#ff4949">
-            </el-switch>
-          </el-col>
-          <el-col :span="2" class="device-delete-btn">
-            <i class="el-icon-close" @click.stop="deleteItem(item.id, item.serialNum, item.type)"></i>
-          </el-col>
-        </el-row>
+
+            <div class="device-type-text">
+              <div class="device-item-title-text">Type of Device:</div>
+              <div class="device-item-text">{{ item.type }}</div>
+            </div>
+
+              <div style="line-height: 12vh; margin-left: auto">
+                <div class="device-state-text">Device Status</div>
+                <span @click.stop="">
+                <el-switch
+                    v-model="item.state"
+                    active-color="#13ce66"
+                    inactive-color="#ff4949"
+                    @change="switchChange(item)">
+                </el-switch>
+              </span>
+              </div>
+
+              <div class="device-delete-btn">
+                <i class="el-icon-close" @click.stop="deleteItem(item.id, item.serialNum, item.type)"></i>
+              </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -146,6 +151,7 @@ export default {
       deviceSelected: {},
       tempModalData: {},
       addOrUpdate: 0, // 0 for add 1 for update
+      refresh: true,
     }
   },
   watch: {},
@@ -153,13 +159,34 @@ export default {
     empty() {
 
     },
+    switchChange(item) {
+      api.deviceAPI.updateDevice(item.id, {
+        serialNum: item.serialNum,
+        type: item.type,
+        state: item.state ? "ON" : "OFF"
+      }).then(res => {
+        if (res.status === 200) {
+          this.$message({
+            type: 'success',
+            message: 'Operation Success'
+          });
+          this.refreshList();
+        } else {
+          this.$message({
+            type: 'warning',
+            message: 'Operation Failed'
+          });
+          this.refreshList();
+        }
+      })
+    },
     formatApi(data) {
       return JSON.parse(JSON.stringify(data))
     },
     // format all device data and store to local variable: this.allDeviceInfo
     initStateData() {
       // with api
-      api.getAllDevice().then(res => {
+      api.deviceAPI.getAllDevice().then(res => {
         res = this.formatApi(res);
         if (res.status === 200) {
           this.allDeviceInfo = res.data;
@@ -171,9 +198,6 @@ export default {
             message: 'Error: Fetch Data fail',
             type: 'warning'
           });
-          setTimeout(() => {
-            this.initStateData(); // recursively try to fetch data
-          }, 1000);
         }
       })
 
@@ -189,30 +213,25 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
+        this.allDeviceInfo = this.allDeviceInfo.filter(item => item.id !== id);
         // with api
-        api.deleteDevice(id).then(res => {
+        api.deviceAPI.deleteDevice(id).then(res => {
           // if status code is 200, format all device data and store to local variable: this.allDeviceInfo
           if (res.status === 200) {
-            this.initStateData();
+            this.refreshList();
             this.$message({
               type: 'success',
               message: 'Delete Success'
             });
           } // if status is not 200, show an error message
           else {
+            this.refreshList();
             this.$message({
               type: 'warning',
               message: 'Error: Delete Fail'
             });
           }
-        }).catch(() => {
-          // if user cancel delete, show message
-          this.$message({
-            type: 'info',
-            message: 'Cancel Delete'
-          });
-        });
-
+        })
         // without api
         // this.allDeviceInfo = this.allDeviceInfo.filter(item => item.id !== id);
         // this.$message({
@@ -220,6 +239,7 @@ export default {
         //   message: 'Delete Success'
         // });
       }).catch(() => {
+        this.refreshList();
         this.$message({
           type: 'info',
           message: 'Cancel Delete'
@@ -250,39 +270,48 @@ export default {
     },
 
     confirmModal(code) {
-      // with api
-      if (code === 0){
-        api.addDevice( {
+      if (code === 0) {
+        this.allDeviceInfo.push(this.tempModalData);
+        api.deviceAPI.addDevice({
           serialNum: this.tempModalData.serialNum,
           type: this.tempModalData.type,
-          state: this.tempModalData.state? "ON" : "OFF"
+          state: this.tempModalData.state ? "ON" : "OFF"
         }).then(res => {
-          if (res.status === 200){
+          console.log(res);
+          if (res.status === 201) {
             this.$message({
               type: 'success',
               message: 'Add New Device Success'
             });
             this.closeModal();
+            this.refreshList();
           } else {
+            this.refreshList();
             this.$message({
               type: 'warning',
               message: 'Add New Device Failed'
             });
           }
         })
-      } else if (code === 1){
-        api.updateDevice(this.tempModalData.id, {
+      } else if (code === 1) {
+        const index = this.allDeviceInfo.findIndex(item => item.id === this.tempModalData.id);
+        if (index !== -1) {
+          this.allDeviceInfo[index] = this.tempModalData;
+        }
+        api.deviceAPI.updateDevice(this.tempModalData.id, {
           serialNum: this.tempModalData.serialNum,
           type: this.tempModalData.type,
-          state: this.tempModalData.state? "ON" : "OFF"
+          state: this.tempModalData.state ? "ON" : "OFF"
         }).then(res => {
-          if (res.status === 200){
+          if (res.status === 200) {
             this.$message({
               type: 'success',
               message: 'Update Success'
             });
             this.closeModal();
+            this.refreshList();
           } else {
+            this.refreshList();
             this.$message({
               type: 'warning',
               message: 'Update Failed'
@@ -290,6 +319,8 @@ export default {
           }
         })
       }
+      // with api
+
 
       // without api
       // if (code === 1) {
@@ -302,6 +333,12 @@ export default {
       // }
 
       this.closeModal();
+    },
+
+    refreshList() {
+      this.refresh = !this.refresh;
+      this.refresh = !this.refresh;
+      this.initStateData();
     },
 
     dcp(obj) {
@@ -402,6 +439,7 @@ export default {
   line-height: 12vh;
   font-size: 3vh;
   vertical-align: middle;
+  width: 5vw;
 }
 
 .device-delete-btn:hover {

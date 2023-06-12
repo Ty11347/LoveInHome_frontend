@@ -4,10 +4,9 @@
       Parameters
       <el-button style="margin-left: auto" @click="addDevice">Add New Parameter</el-button>
     </div>
-    <div class="device-item-wrapper">
+    <div class="device-item-wrapper" v-if="refresh">
       <div v-for="item in allParameterInfo" :key="item.id" class="device-item" @click="clickDevice(item)">
-        <el-row>
-          <el-col :span="22">
+          <div>
             <div style="display: flex">
               <div class="device-serial-text">
                 <div class="device-item-title-text">Parameter Name:</div>
@@ -17,12 +16,11 @@
                 <div class="device-item-title-text">Parameter Unit:</div>
                 <div class="device-item-text">{{ item.unit }}</div>
               </div>
+              <div class="device-delete-btn">
+                <i class="el-icon-close" @click.stop="deleteItem(item.id, item.name, item.unit)"></i>
+              </div>
             </div>
-          </el-col>
-          <el-col :span="2" class="device-delete-btn">
-            <i class="el-icon-close" @click.stop="deleteItem(item.id, item.name, item.unit)"></i>
-          </el-col>
-        </el-row>
+          </div>
       </div>
     </div>
 
@@ -90,6 +88,7 @@ export default {
       deviceSelected: {},
       tempModalData: {},
       addOrUpdate: 0, // 0 for add 1 for update
+      refresh: true,
     }
   },
   watch: {},
@@ -97,16 +96,21 @@ export default {
     empty() {
 
     },
+    refreshList() {
+      this.refresh = !this.refresh;
+      this.refresh = !this.refresh;
+      this.initStateData();
+    },
     formatApi(data) {
       return JSON.parse(JSON.stringify(data))
     },
     // format all device data and store to local variable: this.allDeviceInfo
     initStateData() {
       // with api
-      api.getAllPara().then(res => {
+      api.paraAPI.getAllPara().then(res => {
         res = this.formatApi(res);
         if (res.status === 200) {
-          this.allDeviceInfo = res.data;
+          this.allParameterInfo = res.data;
         } else {
           this.$message({
             message: 'Error: Fetch Data fail',
@@ -130,30 +134,25 @@ export default {
         cancelButtonText: 'Cancel',
         type: 'warning'
       }).then(() => {
+        this.allParameterInfo = this.allParameterInfo.filter(item => item.id !== id);
         // with api
-        api.deletePara(id).then(res => {
+        api.paraAPI.deletePara(id).then(res => {
           // if status code is 200, format all device data and store to local variable: this.allDeviceInfo
           if (res.status === 200) {
-            this.initStateData();
+            this.refreshList();
             this.$message({
               type: 'success',
               message: 'Delete Success'
             });
-          } // if status is not 200, show an error message
+          } // if status is not 200, show an error message test test
           else {
+            this.refreshList();
             this.$message({
               type: 'warning',
               message: 'Error: Delete Fail'
             });
           }
-        }).catch(() => {
-          // if user cancel delete, show message
-          this.$message({
-            type: 'info',
-            message: 'Cancel Delete'
-          });
-        });
-
+        })
         // without api
         // this.allParameterInfo = this.allParameterInfo.filter(item => item.id !== id);
         // this.$message({
@@ -191,36 +190,45 @@ export default {
 
     confirmModal(code) {
       // with api
-      if (code === 0) {
-        api.addDevice({
+      if (code === 0) { // add new
+        this.allParameterInfo.push(this.tempModalData);
+        api.paraAPI.addPara({
           name: this.tempModalData.name,
           unit: this.tempModalData.unit
         }).then(res => {
-          if (res.status === 200) {
+          if (res.status === 201) {
+            this.refreshList();
             this.$message({
               type: 'success',
               message: 'Add New Parameter Success'
             });
             this.closeModal();
           } else {
+            this.refreshList();
             this.$message({
               type: 'warning',
               message: 'Add New Parameter Failed'
             });
           }
         })
-      } else if (code === 1) {
-        api.updateDevice(this.tempModalData.id, {
+      } else if (code === 1) { // update
+        const index = this.allParameterInfo.findIndex(item => item.id === this.tempModalData.id);
+        if (index !== -1) {
+          this.allParameterInfo[index] = this.tempModalData;
+        }
+        api.paraAPI.updatePara(this.tempModalData.id, {
           name: this.tempModalData.name,
           unit: this.tempModalData.unit,
         }).then(res => {
           if (res.status === 200) {
+            this.refreshList();
             this.$message({
               type: 'success',
               message: 'Update Parameter Success'
             });
             this.closeModal();
           } else {
+            this.refreshList();
             this.$message({
               type: 'warning',
               message: 'Update Parameter Failed'
@@ -340,6 +348,8 @@ export default {
   line-height: 12vh;
   font-size: 3vh;
   vertical-align: middle;
+  width: 5vw;
+  margin-left: auto;
 }
 
 .device-delete-btn:hover {

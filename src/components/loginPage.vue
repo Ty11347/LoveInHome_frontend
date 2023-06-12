@@ -69,10 +69,11 @@ export default {
       }
 
       // login fail handle with api
-      api.fmLogin({
-        username: this.username,
-        password: this.password}
-        //  api.fmLogin(this.username, this.password
+      
+      api.fmAPI.fmLogin(
+          this.username,
+          this.password
+
       ).then(res => {
         if (res.status === 200) {
           this.set_page(0);
