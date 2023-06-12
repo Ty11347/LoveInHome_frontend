@@ -4,8 +4,8 @@ import {get, del, put, post} from './http'
 // const localhost = "http://localhost:8080";
 // const herokuhost = "https://loveinhome.herokuapp.com";
 
-
-const apiAddress = {
+// login and register
+const fmAPI = {
   // login and register
   fmLogin: (username, password) => {
     return post('/api/fm/login?' + "username=" + username + "&password=" + password, undefined)
@@ -13,7 +13,10 @@ const apiAddress = {
   fmRegister: (param) => {
     return post('/api/fm/register', param)
   },
-  // parameter
+}
+
+// parameter
+const paraAPI = {
   getAllPara: (param) => {
     return get('/api/parameter', param)
   },
@@ -29,8 +32,10 @@ const apiAddress = {
   deletePara: (id, param) => {
     return del('/api/parameter/' + id, param)
   },
+}
 
-  // device
+// device
+const deviceAPI = {
   getAllDevice: (param) => {
     return get('/api/device', param)
   },
@@ -48,4 +53,23 @@ const apiAddress = {
   },
 }
 
-export default apiAddress;
+// user
+const userAPI = {
+  getAllUser: () => {
+    return get('/api/user', undefined)
+  },
+  getUserByID: (id) => {
+    return get('/api/user/' + id, undefined)
+  },
+  addUser: (param) => {
+    return post('/api/user', param)
+  },
+  updateUser: (id, param) => {
+    return put('/api/user/' + id, param)
+  },
+  deleteUser: (id) => {
+    return del('/api/user/' + id, undefined)
+  },
+}
+
+export default {fmAPI, paraAPI, deviceAPI, userAPI};
