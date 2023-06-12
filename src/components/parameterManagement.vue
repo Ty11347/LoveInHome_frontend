@@ -6,8 +6,7 @@
     </div>
     <div class="device-item-wrapper" v-if="refresh">
       <div v-for="item in allParameterInfo" :key="item.id" class="device-item" @click="clickDevice(item)">
-        <el-row>
-          <el-col :span="22">
+          <div>
             <div style="display: flex">
               <div class="device-serial-text">
                 <div class="device-item-title-text">Parameter Name:</div>
@@ -17,12 +16,11 @@
                 <div class="device-item-title-text">Parameter Unit:</div>
                 <div class="device-item-text">{{ item.unit }}</div>
               </div>
+              <div class="device-delete-btn">
+                <i class="el-icon-close" @click.stop="deleteItem(item.id, item.name, item.unit)"></i>
+              </div>
             </div>
-          </el-col>
-          <el-col :span="2" class="device-delete-btn">
-            <i class="el-icon-close" @click.stop="deleteItem(item.id, item.name, item.unit)"></i>
-          </el-col>
-        </el-row>
+          </div>
       </div>
     </div>
 
@@ -350,6 +348,8 @@ export default {
   line-height: 12vh;
   font-size: 3vh;
   vertical-align: middle;
+  width: 5vw;
+  margin-left: auto;
 }
 
 .device-delete-btn:hover {

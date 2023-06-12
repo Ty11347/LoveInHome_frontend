@@ -6,34 +6,47 @@
     </div>
     <div class="device-item-wrapper" v-if="refresh">
       <div v-for="item in allDeviceInfo" :key="item.id" class="device-item" @click="clickDevice(item)">
-        <el-row>
-          <el-col :span="16">
-            <div style="display: flex">
-              <div class="device-serial-text">
-                <div class="device-item-title-text">Serial Number:</div>
-                <div class="device-item-text">{{ item.serialNum }}</div>
-              </div>
-              <div class="device-type-text">
-                <div class="device-item-title-text">Type of Device:</div>
-                <div class="device-item-text">{{ item.type }}</div>
-              </div>
+        <!--          <el-col :span="16">-->
+        <div>
+          <div style="display: flex">
+            <div class="device-serial-text">
+              <div class="device-item-title-text">Serial Number:</div>
+              <div class="device-item-text">{{ item.serialNum }}</div>
             </div>
-          </el-col>
-          <el-col :span="6" style="line-height: 12vh; text-align: right">
-            <div class="device-state-text">Device Status</div>
-            <span @click.stop="">
-              <el-switch
-                  v-model="item.state"
-                  active-color="#13ce66"
-                  inactive-color="#ff4949"
-                  @change="switchChange(item)">
-              </el-switch>
-            </span>
-          </el-col>
-          <el-col :span="2" class="device-delete-btn">
-            <i class="el-icon-close" @click.stop="deleteItem(item.id, item.serialNum, item.type)"></i>
-          </el-col>
-        </el-row>
+
+            <div class="device-type-text">
+              <div class="device-item-title-text">Type of Device:</div>
+              <div class="device-item-text">{{ item.type }}</div>
+            </div>
+
+              <div style="line-height: 12vh; margin-left: auto">
+                <div class="device-state-text">Device Status</div>
+                <span @click.stop="">
+                <el-switch
+                    v-model="item.state"
+                    active-color="#13ce66"
+                    inactive-color="#ff4949"
+                    @change="switchChange(item)">
+                </el-switch>
+              </span>
+              </div>
+
+              <div class="device-delete-btn">
+                <i class="el-icon-close" @click.stop="deleteItem(item.id, item.serialNum, item.type)"></i>
+              </div>
+          </div>
+        </div>
+        <!--          </el-col>-->
+
+        <!--        <el-col :span="6" style="line-height: 12vh; text-align: right">-->
+
+        <!--        </el-col>-->
+
+        <!--        <el-col :span="2" class="device-delete-btn">-->
+
+
+        <!--        </el-col>-->
+        <!--        </el-row>-->
       </div>
     </div>
 
@@ -437,6 +450,7 @@ export default {
   line-height: 12vh;
   font-size: 3vh;
   vertical-align: middle;
+  width: 5vw;
 }
 
 .device-delete-btn:hover {
