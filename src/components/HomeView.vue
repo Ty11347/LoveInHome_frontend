@@ -63,10 +63,10 @@ export default {
           name: "User Management",
           page: 3
         },
-        {
-          name: "House Management",
-          page: 1
-        },
+        // {
+        //   name: "House Management",
+        //   page: 1
+        // },
         {
           name: "Parameter Management",
           page: 2
@@ -75,10 +75,10 @@ export default {
           name: "Device Management",
           page: 0
         },
-        {
-          name: "House Parameter Management",
-          page: 4
-        },
+        // {
+        //   name: "House Parameter Management",
+        //   page: 4
+        // },
         {
           name: "Log Out",
           page: 99
