@@ -146,7 +146,7 @@ export default {
               type: 'success',
               message: 'Delete Success'
             });
-          } // if status is not 200, show an error message test test
+          } // if status is not 200, show an error message
           else {
             this.refreshList();
             this.$message({
