@@ -76,7 +76,7 @@ export default {
       }
 
       // call api to register
-      api.fmRegister({
+      api.fmAPI.fmRegister({
         username: this.username,
         password: this.password
       }).then(res => {

@@ -69,7 +69,7 @@ export default {
       }
 
       // login fail handle with api
-      api.fmLogin(
+      api.fmAPI.fmLogin(
           this.username,
           this.password
       ).then(res => {

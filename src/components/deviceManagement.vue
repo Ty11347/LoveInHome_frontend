@@ -36,17 +36,6 @@
               </div>
           </div>
         </div>
-        <!--          </el-col>-->
-
-        <!--        <el-col :span="6" style="line-height: 12vh; text-align: right">-->
-
-        <!--        </el-col>-->
-
-        <!--        <el-col :span="2" class="device-delete-btn">-->
-
-
-        <!--        </el-col>-->
-        <!--        </el-row>-->
       </div>
     </div>
 
@@ -171,7 +160,7 @@ export default {
 
     },
     switchChange(item) {
-      api.updateDevice(item.id, {
+      api.deviceAPI.updateDevice(item.id, {
         serialNum: item.serialNum,
         type: item.type,
         state: item.state ? "ON" : "OFF"
@@ -197,7 +186,7 @@ export default {
     // format all device data and store to local variable: this.allDeviceInfo
     initStateData() {
       // with api
-      api.getAllDevice().then(res => {
+      api.deviceAPI.getAllDevice().then(res => {
         res = this.formatApi(res);
         if (res.status === 200) {
           this.allDeviceInfo = res.data;
@@ -226,7 +215,7 @@ export default {
       }).then(() => {
         this.allDeviceInfo = this.allDeviceInfo.filter(item => item.id !== id);
         // with api
-        api.deleteDevice(id).then(res => {
+        api.deviceAPI.deleteDevice(id).then(res => {
           // if status code is 200, format all device data and store to local variable: this.allDeviceInfo
           if (res.status === 200) {
             this.refreshList();
@@ -283,7 +272,7 @@ export default {
     confirmModal(code) {
       if (code === 0) {
         this.allDeviceInfo.push(this.tempModalData);
-        api.addDevice({
+        api.deviceAPI.addDevice({
           serialNum: this.tempModalData.serialNum,
           type: this.tempModalData.type,
           state: this.tempModalData.state ? "ON" : "OFF"
@@ -309,7 +298,7 @@ export default {
         if (index !== -1) {
           this.allDeviceInfo[index] = this.tempModalData;
         }
-        api.updateDevice(this.tempModalData.id, {
+        api.deviceAPI.updateDevice(this.tempModalData.id, {
           serialNum: this.tempModalData.serialNum,
           type: this.tempModalData.type,
           state: this.tempModalData.state ? "ON" : "OFF"

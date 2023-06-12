@@ -107,7 +107,7 @@ export default {
     // format all device data and store to local variable: this.allDeviceInfo
     initStateData() {
       // with api
-      api.getAllPara().then(res => {
+      api.paraAPI.getAllPara().then(res => {
         res = this.formatApi(res);
         if (res.status === 200) {
           this.allParameterInfo = res.data;
@@ -136,7 +136,7 @@ export default {
       }).then(() => {
         this.allParameterInfo = this.allParameterInfo.filter(item => item.id !== id);
         // with api
-        api.deletePara(id).then(res => {
+        api.paraAPI.deletePara(id).then(res => {
           // if status code is 200, format all device data and store to local variable: this.allDeviceInfo
           if (res.status === 200) {
             this.refreshList();
@@ -192,7 +192,7 @@ export default {
       // with api
       if (code === 0) { // add new
         this.allParameterInfo.push(this.tempModalData);
-        api.addPara({
+        api.paraAPI.addPara({
           name: this.tempModalData.name,
           unit: this.tempModalData.unit
         }).then(res => {
@@ -216,7 +216,7 @@ export default {
         if (index !== -1) {
           this.allParameterInfo[index] = this.tempModalData;
         }
-        api.updatePara(this.tempModalData.id, {
+        api.paraAPI.updatePara(this.tempModalData.id, {
           name: this.tempModalData.name,
           unit: this.tempModalData.unit,
         }).then(res => {
