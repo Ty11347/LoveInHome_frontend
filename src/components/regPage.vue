@@ -16,6 +16,12 @@
             <label for="confirm-password">Confirm Password</label>
             <el-input id="confirm-password" v-model="confirmPassword" placeholder="" show-password clearable></el-input>
           </div>
+
+          <div class="form-group">
+            <span class="new-reg-text" @click="toLogin">
+              I Have An Account
+            </span>
+          </div>
           <button type="submit" style="margin-top: 4vh" id="login-btn">Register</button>
         </form>
       </div>
@@ -167,7 +173,7 @@ export default {
 }
 
 .reg {
-  width: 30%;
+  width: 35%;
   max-width: 40vw;
   padding: 20px;
   border: 1px solid #ccc;

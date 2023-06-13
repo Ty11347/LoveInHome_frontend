@@ -4,6 +4,7 @@
       Devices
       <el-button style="margin-left: auto" @click="addDevice">Add Device</el-button>
     </div>
+    <div style="text-align: center; font-size: 3vh" v-show="loading">Loading data...</div>
     <div class="device-item-wrapper" v-if="refresh">
       <div v-for="item in allDeviceInfo" :key="item.id" class="device-item" @click="clickDevice(item)">
         <!--          <el-col :span="16">-->
@@ -46,11 +47,11 @@
         </p>
       </template>
       <div>
-        <el-form label-position="right" label-width="120px" :model="tempModalData">
-          <el-form-item label="Serial Number">
+        <el-form label-position="right" label-width="120px" :model="tempModalData" ref="deviceForm" :rules="deviceFormRules">
+          <el-form-item label="Serial Number" prop="serialNum">
             <el-input v-model="tempModalData.serialNum"></el-input>
           </el-form-item>
-          <el-form-item label="Device Type">
+          <el-form-item label="Device Type" prop="type">
             <el-input v-model="tempModalData.type"></el-input>
           </el-form-item>
           <el-form-item label="Device State">
@@ -78,80 +79,21 @@ export default {
   name: "deviceManagement",
   data() {
     return {
-      allDeviceInfo: [
-        {
-          id: "64576fef71c9d22b63f0aa516",
-          createdDate: null,
-          lastModifiedDate: "2023-05-20T17:54:41.670Z",
-          serialNum: "ABC123333333333333333333",
-          type: "Resberry pi 4",
-          state: "OFF"
-        },
-        {
-          id: "6463434844542d8ab0b242ac",
-          createdDate: null,
-          lastModifiedDate: null,
-          serialNum: "DEF123",
-          type: "Resberry pi 4",
-          state: "ON"
-        },
-        {
-          id: "6463515110252f6ef413c733",
-          createdDate: null,
-          lastModifiedDate: null,
-          serialNum: "QWE123",
-          type: "Smart Device",
-          state: "ON"
-        },
-        {
-          id: "64635238702d254e6d013b5a",
-          createdDate: "2023-05-16T17:51:52.619Z",
-          lastModifiedDate: "2023-05-16T17:51:52.619Z",
-          serialNum: "QWE123",
-          type: "Smart Device",
-          state: "ON"
-        }, {
-          id: "64576fef71c9d22b63f0aa356",
-          createdDate: null,
-          lastModifiedDate: "2023-05-20T17:54:41.670Z",
-          serialNum: "ABC123",
-          type: "Resberry pi 4",
-          state: "OFF"
-        }, {
-          id: "64576fef71c9d22b63f0aa564",
-          createdDate: null,
-          lastModifiedDate: "2023-05-20T17:54:41.670Z",
-          serialNum: "ABC123",
-          type: "Resberry pi 4",
-          state: "OFF"
-        }, {
-          id: "64576fef71c9d22b63f0aa565",
-          createdDate: null,
-          lastModifiedDate: "2023-05-20T17:54:41.670Z",
-          serialNum: "ABC123",
-          type: "Resberry pi 4",
-          state: "OFF"
-        }, {
-          id: "64576fef71c9d22b63f0aa456",
-          createdDate: null,
-          lastModifiedDate: "2023-05-20T17:54:41.670Z",
-          serialNum: "ABC123",
-          type: "Resberry pi 4",
-          state: "OFF"
-        }, {
-          id: "64576fef71c9d22b63f0aa556",
-          createdDate: null,
-          lastModifiedDate: "2023-05-20T17:54:41.670Z",
-          serialNum: "ABC123",
-          type: "Resberry pi 4",
-          state: "OFF"
-        },
-      ],
+      loading: true,
+      allDeviceInfo: [],
       deviceModalStatus: false,
       deviceSelected: {},
       tempModalData: {},
       addOrUpdate: 0, // 0 for add 1 for update
       refresh: true,
+      deviceFormRules: {
+        serialNum: [
+          {required: true, message: 'Please input serial name', trigger: 'blur'},
+        ],
+        type: [
+          {required: true, message: 'Please input device type', trigger: 'blur'},
+        ],
+      }
     }
   },
   watch: {},
@@ -189,6 +131,7 @@ export default {
       api.deviceAPI.getAllDevice().then(res => {
         res = this.formatApi(res);
         if (res.status === 200) {
+          this.loading = false;
           this.allDeviceInfo = res.data;
           this.allDeviceInfo.forEach(device => {
             device.state = device.state === "ON";
@@ -270,69 +213,67 @@ export default {
     },
 
     confirmModal(code) {
-      if (code === 0) {
-        this.allDeviceInfo.push(this.tempModalData);
-        api.deviceAPI.addDevice({
-          serialNum: this.tempModalData.serialNum,
-          type: this.tempModalData.type,
-          state: this.tempModalData.state ? "ON" : "OFF"
-        }).then(res => {
-          console.log(res);
-          if (res.status === 201) {
-            this.$message({
-              type: 'success',
-              message: 'Add New Device Success'
-            });
-            this.closeModal();
-            this.refreshList();
-          } else {
-            this.refreshList();
-            this.$message({
-              type: 'warning',
-              message: 'Add New Device Failed'
-            });
+      this.$refs.deviceForm.validate((valid) => {
+        if (valid) {
+          if (code === 0) {
+            this.allDeviceInfo.push(this.tempModalData);
+            api.deviceAPI.addDevice({
+              serialNum: this.tempModalData.serialNum,
+              type: this.tempModalData.type,
+              state: this.tempModalData.state ? "ON" : "OFF"
+            }).then(res => {
+              console.log(res);
+              if (res.status === 201) {
+                this.$message({
+                  type: 'success',
+                  message: 'Add New Device Success'
+                });
+                this.closeModal();
+                this.refreshList();
+              } else {
+                this.refreshList();
+                this.$message({
+                  type: 'warning',
+                  message: 'Add New Device Failed'
+                });
+              }
+            })
           }
-        })
-      } else if (code === 1) {
-        const index = this.allDeviceInfo.findIndex(item => item.id === this.tempModalData.id);
-        if (index !== -1) {
-          this.allDeviceInfo[index] = this.tempModalData;
+          else if (code === 1) {
+            const index = this.allDeviceInfo.findIndex(item => item.id === this.tempModalData.id);
+            if (index !== -1) {
+              this.allDeviceInfo[index] = this.tempModalData;
+            }
+            api.deviceAPI.updateDevice(this.tempModalData.id, {
+              serialNum: this.tempModalData.serialNum,
+              type: this.tempModalData.type,
+              state: this.tempModalData.state ? "ON" : "OFF"
+            }).then(res => {
+              if (res.status === 200) {
+                this.$message({
+                  type: 'success',
+                  message: 'Update Success'
+                });
+                this.closeModal();
+                this.refreshList();
+              } else {
+                this.refreshList();
+                this.$message({
+                  type: 'warning',
+                  message: 'Update Failed'
+                });
+              }
+            })
+          }
+          this.closeModal();
+        } else {
+          this.$message({
+            message: 'Error: Please refill the form!!',
+            type: 'warning'
+          });
+          return false;
         }
-        api.deviceAPI.updateDevice(this.tempModalData.id, {
-          serialNum: this.tempModalData.serialNum,
-          type: this.tempModalData.type,
-          state: this.tempModalData.state ? "ON" : "OFF"
-        }).then(res => {
-          if (res.status === 200) {
-            this.$message({
-              type: 'success',
-              message: 'Update Success'
-            });
-            this.closeModal();
-            this.refreshList();
-          } else {
-            this.refreshList();
-            this.$message({
-              type: 'warning',
-              message: 'Update Failed'
-            });
-          }
-        })
-      }
-      // with api
-
-
-      // without api
-      // if (code === 1) {
-      //   const index = this.allDeviceInfo.findIndex(item => item.id === this.tempModalData.id);
-      //   if (index !== -1) {
-      //     this.allDeviceInfo[index] = this.tempModalData;
-      //   }
-      // } else {
-      //   console.log(this.tempModalData);
-      // }
-
-      this.closeModal();
+      });
     },
 
     refreshList() {

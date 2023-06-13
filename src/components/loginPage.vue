@@ -2,7 +2,7 @@
   <div class="login-main-wrapper">
     <div class="login-container">
       <div class="login">
-        <h2>LovIn Management System Login</h2>
+        <h2>LovIn Home Management System Login</h2>
         <form @submit.prevent="login">
           <div class="form-group">
             <label for="username">Username</label>
@@ -129,8 +129,8 @@ export default {
 }
 
 .login {
-  width: 30%;
-  max-width: 40vw;
+  width: 35%;
+  max-width: 45vw;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;

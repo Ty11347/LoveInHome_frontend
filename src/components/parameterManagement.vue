@@ -4,6 +4,7 @@
       Parameters
       <el-button style="margin-left: auto" @click="addDevice">Add New Parameter</el-button>
     </div>
+    <div style="text-align: center; font-size: 3vh" v-show="loading">Loading data...</div>
     <div class="device-item-wrapper" v-if="refresh">
       <div v-for="item in allParameterInfo" :key="item.id" class="device-item" @click="clickDevice(item)">
           <div>
@@ -31,11 +32,11 @@
         </p>
       </template>
       <div>
-        <el-form label-position="right" label-width="80px" :model="tempModalData">
-          <el-form-item label="Name">
+        <el-form label-position="right" label-width="80px" :model="tempModalData" ref="paraForm" :rules="paraFormRules">
+          <el-form-item label="Name" prop="name">
             <el-input v-model="tempModalData.name"></el-input>
           </el-form-item>
-          <el-form-item label="Unit">
+          <el-form-item label="Unit" prop="unit">
             <el-input v-model="tempModalData.unit"></el-input>
           </el-form-item>
           <div v-if="tempModalData.createdDate !== undefined">
@@ -68,27 +69,21 @@ export default {
   name: "parameterManagement",
   data() {
     return {
-      allParameterInfo: [
-        {
-          id: "6466fccf65fec255ee60c0fc",
-          createdDate: "2023-05-19T12:36:31.808Z",
-          lastModifiedDate: "2023-05-19T12:36:31.808Z",
-          name: "temperature",
-          unit: "°C"
-        },
-        {
-          id: "6466fd0965fec255ee60c0fd",
-          createdDate: "2023-05-19T12:37:29.569Z",
-          lastModifiedDate: "2023-05-19T12:38:16.637Z",
-          name: "Wind",
-          unit: "m/s"
-        }
-      ],
+      loading: true,
+      allParameterInfo: [],
       deviceModalStatus: false,
       deviceSelected: {},
       tempModalData: {},
       addOrUpdate: 0, // 0 for add 1 for update
       refresh: true,
+      paraFormRules: {
+        name: [
+          {required: true, message: 'Please input parameter name', trigger: 'blur'},
+        ],
+        unit: [
+          {required: true, message: 'Please input parameter unit', trigger: 'blur'},
+        ],
+      }
     }
   },
   watch: {},
@@ -110,6 +105,7 @@ export default {
       api.paraAPI.getAllPara().then(res => {
         res = this.formatApi(res);
         if (res.status === 200) {
+          this.loading = false;
           this.allParameterInfo = res.data;
         } else {
           this.$message({

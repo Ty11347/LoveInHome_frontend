@@ -7,7 +7,7 @@
           <el-button @click="deleteSelection">Delete User</el-button>
         </el-col>
         <el-col :span="6">
-          <el-input v-model="searchInput" placeholder="Please Input Search Keywords" clearable
+          <el-input v-model="searchInput" placeholder="Search for Username" clearable
                     @change="clearSearch(searchInput)">
             <el-button slot="append" icon="el-icon-search" @click="search4Input(searchInput)"></el-button>
           </el-input>
@@ -37,14 +37,14 @@
         </p>
       </template>
       <div>
-        <el-form label-position="right" label-width="120px" :model="tempModalData">
-          <el-form-item label="Username">
+        <el-form label-position="right" label-width="120px" :model="tempModalData" :rules="userFormRules" ref="userForm">
+          <el-form-item label="Username" prop="username">
             <el-input v-model="tempModalData.username"></el-input>
           </el-form-item>
-          <el-form-item label="Email">
+          <el-form-item label="Email" prop="email">
             <el-input v-model="tempModalData.email"></el-input>
           </el-form-item>
-          <el-form-item label="Password">
+          <el-form-item label="Password" prop="password">
             <el-input v-model="tempModalData.password"></el-input>
           </el-form-item>
           <el-row>
@@ -103,7 +103,8 @@ export default {
         },
         {
           title: 'Email',
-          key: 'email'
+          key: 'email',
+          sortable: true
         },
         {
           title: 'Created Date',
@@ -113,12 +114,14 @@ export default {
         {
           title: 'Admin',
           slot: 'admin',
-          key: 'isAdmin'
+          key: 'isAdmin',
+          sortable: true
         },
         {
           title: 'Active',
           slot: 'active',
-          key: 'isActive'
+          key: 'isActive',
+          sortable: true
         },
         {
           title: 'Action',
@@ -193,6 +196,19 @@ export default {
       chartSelection: [],
       tempModalData: {},
       addOrUpdate: 0,
+      userFormRules: {
+        username: [
+          {required: true, message: 'Please input username', trigger: 'blur'}
+        ],
+        email: [
+          {required: true, message: 'Please input email address', trigger: 'blur'},
+          {type: 'email', message: 'Please input correct Email address', trigger: ['blur', 'change']}
+        ],
+        password: [
+          {required: true, message: 'Please input password', trigger: 'blur'},
+          {min: 8, max: 16, message: 'Password length should be 8 to 16 characters', trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
@@ -203,86 +219,84 @@ export default {
       this.userModalStatus = false;
     },
 
-    addUser(){
+    addUser() {
       this.userModalStatus = true;
       this.addOrUpdate = 0;
     },
 
-    updateUser(row){
+    updateUser(row) {
       this.tempModalData = row;
       this.confirmModal(1);
     },
 
     confirmModal(code) {
-      if (code === 1) {
-        console.log(this.chartDisplayData);
-        console.log(this.tempModalData);
-        const index = this.chartDisplayData.findIndex(item => item.id === this.tempModalData.id);
-        if (index !== -1) {
-          this.chartDisplayData[index] = this.tempModalData;
+      this.$refs.userForm.validate((valid) => {
+        if (valid) {
+          if (code === 1) {
+            console.log(this.chartDisplayData);
+            console.log(this.tempModalData);
+            const index = this.chartDisplayData.findIndex(item => item.id === this.tempModalData.id);
+            if (index !== -1) {
+              this.chartDisplayData[index] = this.tempModalData;
+            }
+            api.userAPI.updateUser(this.tempModalData.id, {
+              username: this.tempModalData.username,
+              password: this.tempModalData.password,
+              email: this.tempModalData.email,
+              isActive: this.tempModalData.isActive,
+              isAdmin: this.tempModalData.isAdmin
+            }).then(res => {
+              console.log(res);
+              if (res.status === 200) {
+                this.$message({
+                  type: 'success',
+                  message: 'Update Success'
+                });
+                this.closeModal();
+                this.refreshPage();
+              } else {
+                this.refreshPage();
+                this.$message({
+                  type: 'warning',
+                  message: 'Update Failed'
+                });
+              }
+            })
+          }
+          else if (code === 0) {
+            this.chartDisplayData.push(this.tempModalData);
+            api.userAPI.addUser({
+              username: this.tempModalData.username,
+              password: this.tempModalData.password,
+              email: this.tempModalData.email,
+              isActive: this.tempModalData.isActive,
+              isAdmin: this.tempModalData.isAdmin
+            }).then(res => {
+              if (res.status === 201) {
+                this.$message({
+                  type: 'success',
+                  message: 'Add New User Success'
+                });
+                this.closeModal();
+                this.refreshPage();
+              } else {
+                this.refreshPage();
+                this.$message({
+                  type: 'warning',
+                  message: 'Add New User Failed'
+                });
+              }
+            })
+          }
+          this.closeModal();
+        } else {
+          this.$message({
+            message: 'Error: Please refill the form!!',
+            type: 'warning'
+          });
+          return false;
         }
-        api.userAPI.updateUser(this.tempModalData.id, {
-          username: this.tempModalData.username,
-          password: this.tempModalData.password,
-          email: this.tempModalData.email,
-          isActive: this.tempModalData.isActive,
-          isAdmin: this.tempModalData.isAdmin
-        }).then(res => {
-          console.log(res);
-          if (res.status === 200) {
-            this.$message({
-              type: 'success',
-              message: 'Update Success'
-            });
-            this.closeModal();
-            this.refreshPage();
-          } else {
-            this.refreshPage();
-            this.$message({
-              type: 'warning',
-              message: 'Update Failed'
-            });
-          }
-        })
-      } else if (code === 0) {
-        this.chartDisplayData.push(this.tempModalData);
-        api.userAPI.addUser({
-          username: this.tempModalData.username,
-          password: this.tempModalData.password,
-          email: this.tempModalData.email,
-          isActive: this.tempModalData.isActive,
-          isAdmin: this.tempModalData.isAdmin
-        }).then(res => {
-          if (res.status === 201) {
-            this.$message({
-              type: 'success',
-              message: 'Add New User Success'
-            });
-            this.closeModal();
-            this.refreshPage();
-          } else {
-            this.refreshPage();
-            this.$message({
-              type: 'warning',
-              message: 'Add New User Failed'
-            });
-          }
-        })
-      }
-      // with api
-
-
-      // without api
-      // if (code === 1) {
-      //   const index = this.allDeviceInfo.findIndex(item => item.id === this.tempModalData.id);
-      //   if (index !== -1) {
-      //     this.allDeviceInfo[index] = this.tempModalData;
-      //   }
-      // } else {
-      //   console.log(this.tempModalData);
-      // }
-
-      this.closeModal();
+      });
     },
     processDate(str) {
       return JSON.stringify(str).replace(/T/g, " @ ")
