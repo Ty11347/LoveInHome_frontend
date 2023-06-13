@@ -291,7 +291,7 @@ export default {
           this.closeModal();
         } else {
           this.$message({
-            message: 'Error: Please refill the form!!',
+            message: 'Error: Please refill the form',
             type: 'warning'
           });
           return false;

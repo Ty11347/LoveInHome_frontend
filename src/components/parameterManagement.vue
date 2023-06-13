@@ -186,64 +186,64 @@ export default {
 
     confirmModal(code) {
       // with api
-      if (code === 0) { // add new
-        this.allParameterInfo.push(this.tempModalData);
-        api.paraAPI.addPara({
-          name: this.tempModalData.name,
-          unit: this.tempModalData.unit
-        }).then(res => {
-          if (res.status === 201) {
-            this.refreshList();
-            this.$message({
-              type: 'success',
-              message: 'Add New Parameter Success'
-            });
-            this.closeModal();
-          } else {
-            this.refreshList();
-            this.$message({
-              type: 'warning',
-              message: 'Add New Parameter Failed'
-            });
+      this.$refs.paraForm.validate((valid) => {
+        if (valid) {
+          if (code === 0) { // add new
+            this.allParameterInfo.push(this.tempModalData);
+            api.paraAPI.addPara({
+              name: this.tempModalData.name,
+              unit: this.tempModalData.unit
+            }).then(res => {
+              if (res.status === 201) {
+                this.refreshList();
+                this.$message({
+                  type: 'success',
+                  message: 'Add New Parameter Success'
+                });
+                this.closeModal();
+              } else {
+                this.refreshList();
+                this.$message({
+                  type: 'warning',
+                  message: 'Add New Parameter Failed'
+                });
+              }
+            })
           }
-        })
-      } else if (code === 1) { // update
-        const index = this.allParameterInfo.findIndex(item => item.id === this.tempModalData.id);
-        if (index !== -1) {
-          this.allParameterInfo[index] = this.tempModalData;
+          else if (code === 1) { // update
+            const index = this.allParameterInfo.findIndex(item => item.id === this.tempModalData.id);
+            if (index !== -1) {
+              this.allParameterInfo[index] = this.tempModalData;
+            }
+            api.paraAPI.updatePara(this.tempModalData.id, {
+              name: this.tempModalData.name,
+              unit: this.tempModalData.unit,
+            }).then(res => {
+              if (res.status === 200) {
+                this.refreshList();
+                this.$message({
+                  type: 'success',
+                  message: 'Update Parameter Success'
+                });
+                this.closeModal();
+              } else {
+                this.refreshList();
+                this.$message({
+                  type: 'warning',
+                  message: 'Update Parameter Failed'
+                });
+              }
+            })
+          }
+          this.closeModal();
+        } else {
+          this.$message({
+            message: 'Error: Please refill the form',
+            type: 'warning'
+          });
+          return false;
         }
-        api.paraAPI.updatePara(this.tempModalData.id, {
-          name: this.tempModalData.name,
-          unit: this.tempModalData.unit,
-        }).then(res => {
-          if (res.status === 200) {
-            this.refreshList();
-            this.$message({
-              type: 'success',
-              message: 'Update Parameter Success'
-            });
-            this.closeModal();
-          } else {
-            this.refreshList();
-            this.$message({
-              type: 'warning',
-              message: 'Update Parameter Failed'
-            });
-          }
-        })
-      }
-
-      // without api
-      // if (code === 1) {
-      //   const index = this.allParameterInfo.findIndex(item => item.id === this.tempModalData.id);
-      //   if (index !== -1) {
-      //     this.allParameterInfo[index] = this.tempModalData;
-      //   }
-      // } else {
-      //   console.log(this.tempModalData);
-      // }
-
-      this.closeModal();
+      });
     },
 
     dcp(obj) {
