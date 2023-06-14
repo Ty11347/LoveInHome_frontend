@@ -181,6 +181,7 @@ export default {
     },
 
     closeModal() {
+      this.refreshList();
       this.deviceModalStatus = false;
     },
 

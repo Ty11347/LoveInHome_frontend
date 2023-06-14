@@ -18,10 +18,10 @@
       <Table border ref="table" :columns="columns" :data="chartDisplayData" @on-selection-change="testSelect"
              no-data-text="No Data" v-if="refresh">
         <template slot-scope="{ row, index }" slot="admin">
-          <el-switch v-model="row.isAdmin" @change="updateUser(row, index)"></el-switch>
+          <el-switch v-model="row.isAdmin" @change="switchUpdate(row, index)"></el-switch>
         </template>
         <template slot-scope="{ row, index }" slot="active">
-          <el-switch v-model="row.isActive" @change="updateUser(row, index)"></el-switch>
+          <el-switch v-model="row.isActive" @change="switchUpdate(row, index)"></el-switch>
         </template>
         <template slot-scope="{ index }" slot="action">
           <Button type="primary" size="small" style="margin-right: 5px" @click="show(index)">View</Button>
@@ -37,7 +37,8 @@
         </p>
       </template>
       <div>
-        <el-form label-position="right" label-width="140px" :model="tempModalData" :rules="userFormRules" ref="userForm">
+        <el-form label-position="right" label-width="140px" :model="tempModalData" :rules="userFormRules"
+                 ref="userForm">
           <el-form-item label="Username" prop="username">
             <el-input v-model="tempModalData.username"></el-input>
           </el-form-item>
@@ -206,7 +207,7 @@ export default {
         ],
         password: [
           {required: true, message: 'Please input password', trigger: 'blur'},
-          {min: 8, max: 16, message: 'Password length should be 8 to 16 characters', trigger: 'blur' }
+          {min: 8, max: 16, message: 'Password length should be 8 to 16 characters', trigger: 'blur'}
         ]
       }
     }
@@ -216,12 +217,18 @@ export default {
 
     },
     closeModal() {
+      this.refreshPage();
       this.userModalStatus = false;
     },
 
     addUser() {
       this.userModalStatus = true;
       this.addOrUpdate = 0;
+    },
+
+    switchUpdate(row) {
+      this.tempModalData = row;
+      this.confirmModal(2);
     },
 
     updateUser(row) {
@@ -231,7 +238,7 @@ export default {
 
     confirmModal(code) {
       this.$refs.userForm.validate((valid) => {
-        if (valid) {
+        if (valid && code !== 2) {
           if (code === 1) {
             console.log(this.chartDisplayData);
             console.log(this.tempModalData);
@@ -289,6 +296,36 @@ export default {
             })
           }
           this.closeModal();
+        } else if (code === 2) {
+          console.log(this.chartDisplayData);
+          console.log(this.tempModalData);
+          const index = this.chartDisplayData.findIndex(item => item.id === this.tempModalData.id);
+          if (index !== -1) {
+            this.chartDisplayData[index] = this.tempModalData;
+          }
+          api.userAPI.updateUser(this.tempModalData.id, {
+            username: this.tempModalData.username,
+            password: this.tempModalData.password,
+            email: this.tempModalData.email,
+            isActive: this.tempModalData.isActive,
+            isAdmin: this.tempModalData.isAdmin
+          }).then(res => {
+            console.log(res);
+            if (res.status === 200) {
+              this.$message({
+                type: 'success',
+                message: 'Update Success'
+              });
+              this.closeModal();
+              this.refreshPage();
+            } else {
+              this.refreshPage();
+              this.$message({
+                type: 'warning',
+                message: 'Update Failed'
+              });
+            }
+          })
         } else {
           this.$message({
             message: 'Error: Please refill the form',
@@ -443,12 +480,12 @@ export default {
   border-radius: 10px !important;
 }
 
-#confirm-btn{
+#confirm-btn {
   background-color: #ff4f4f;
   color: white;
 }
 
-#confirm-btn:hover{
+#confirm-btn:hover {
   border-color: transparent;
   color: white;
 }
