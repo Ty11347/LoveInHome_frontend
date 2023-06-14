@@ -356,7 +356,7 @@ export default {
 }
 
 #confirm-btn {
-  background-color: #bcd6d2;
+  background-color: #ff4f4f;
   color: #fff;
 }
 

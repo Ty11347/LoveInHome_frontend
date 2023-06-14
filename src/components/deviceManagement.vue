@@ -54,9 +54,19 @@
           <el-form-item label="Device Type" prop="type">
             <el-input v-model="tempModalData.type"></el-input>
           </el-form-item>
-          <el-form-item label="Current Status">
-            <el-switch v-model="tempModalData.state"></el-switch>
-          </el-form-item>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="Current Status">
+                <el-switch v-model="tempModalData.state"></el-switch>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="Install Status">
+                <el-switch v-model="tempModalData.isInstalled"></el-switch>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
           <div style="font-family: Courier New,monospace; font-size: 5px;">*Note: Device current status refers to blablablabla...</div>
           <div style="text-align: center; margin-top: 15px" v-if="tempModalData.id !== undefined">
             <span>Device ID </span>
@@ -106,7 +116,8 @@ export default {
       api.deviceAPI.updateDevice(item.id, {
         serialNum: item.serialNum,
         type: item.type,
-        state: item.state ? "ON" : "OFF"
+        state: item.state ? "ON" : "OFF",
+        isInstalled: item.isInstalled
       }).then(res => {
         if (res.status === 200) {
           this.$message({
@@ -144,11 +155,6 @@ export default {
           });
         }
       })
-
-      // without api
-      // this.allDeviceInfo.forEach(device => {
-      //   device.state = device.state === "ON";
-      // });
     },
 
     deleteItem(id, serial, type) {
@@ -176,12 +182,6 @@ export default {
             });
           }
         })
-        // without api
-        // this.allDeviceInfo = this.allDeviceInfo.filter(item => item.id !== id);
-        // this.$message({
-        //   type: 'success',
-        //   message: 'Delete Success'
-        // });
       }).catch(() => {
         this.refreshList();
         this.$message({
@@ -205,7 +205,8 @@ export default {
       this.tempModalData = {
         serialNum: "",
         type: "",
-        state: true
+        state: true,
+        isInstalled: false
       };
     },
 
@@ -221,7 +222,8 @@ export default {
             api.deviceAPI.addDevice({
               serialNum: this.tempModalData.serialNum,
               type: this.tempModalData.type,
-              state: this.tempModalData.state ? "ON" : "OFF"
+              state: this.tempModalData.state ? "ON" : "OFF",
+              isInstalled: this.tempModalData.isInstalled
             }).then(res => {
               console.log(res);
               if (res.status === 201) {
@@ -248,7 +250,8 @@ export default {
             api.deviceAPI.updateDevice(this.tempModalData.id, {
               serialNum: this.tempModalData.serialNum,
               type: this.tempModalData.type,
-              state: this.tempModalData.state ? "ON" : "OFF"
+              state: this.tempModalData.state ? "ON" : "OFF",
+              isInstalled: this.tempModalData.isInstalled
             }).then(res => {
               if (res.status === 200) {
                 this.$message({
@@ -391,14 +394,14 @@ export default {
   cursor: pointer;
 }
 
-#confirm-btn {
-  background-color: #bcd6d2;
-  color: #fff;
+#confirm-btn{
+  background-color: #ff4f4f !important;
+  color: #fff !important;
 }
 
-#confirm-btn:hover {
-  border-color: transparent;
-  color: #fff;
+#confirm-btn:hover{
+  border-color: transparent !important;
+  color: #fff !important;
 }
 
 #cancel-btn {

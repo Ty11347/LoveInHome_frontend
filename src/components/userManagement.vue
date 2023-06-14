@@ -442,4 +442,14 @@ export default {
 .ivu-table-wrapper-with-border {
   border-radius: 10px !important;
 }
+
+#confirm-btn{
+  background-color: #ff4f4f;
+  color: white;
+}
+
+#confirm-btn:hover{
+  border-color: transparent;
+  color: white;
+}
 </style>
