@@ -72,4 +72,23 @@ const userAPI = {
   },
 }
 
-export default {fmAPI, paraAPI, deviceAPI, userAPI};
+// house
+const houseAPI = {
+  getAllHouse: () => {
+    return get('/api/house', undefined)
+  },
+  getHouseByID: (id) => {
+    return get('/api/house/' + id, undefined)
+  },
+  addHouse: (param) => {
+    return post('/api/house', param)
+  },
+  updateHouse: (id, param) => {
+    return put('/api/house/' + id, param)
+  },
+  deleteHouse: (id) => {
+    return del('/api/house/' + id, undefined)
+  },
+}
+
+export default {fmAPI, paraAPI, deviceAPI, userAPI, houseAPI};
