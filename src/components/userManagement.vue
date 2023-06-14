@@ -37,7 +37,7 @@
         </p>
       </template>
       <div>
-        <el-form label-position="right" label-width="120px" :model="tempModalData" :rules="userFormRules" ref="userForm">
+        <el-form label-position="right" label-width="140px" :model="tempModalData" :rules="userFormRules" ref="userForm">
           <el-form-item label="Username" prop="username">
             <el-input v-model="tempModalData.username"></el-input>
           </el-form-item>
@@ -48,14 +48,14 @@
             <el-input v-model="tempModalData.password"></el-input>
           </el-form-item>
           <el-row>
-            <el-col :span="10">
-              <el-form-item label="Admin">
-                <el-switch v-model="tempModalData.isAdmin"></el-switch>
+            <el-col :span="12">
+              <el-form-item label="Active this user">
+                <el-switch v-model="tempModalData.isActive"></el-switch>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="Active">
-                <el-switch v-model="tempModalData.isActive"></el-switch>
+              <el-form-item label="Set as house admin">
+                <el-switch v-model="tempModalData.isAdmin"></el-switch>
               </el-form-item>
             </el-col>
           </el-row>

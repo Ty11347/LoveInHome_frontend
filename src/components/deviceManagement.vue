@@ -21,7 +21,7 @@
             </div>
 
               <div style="line-height: 12vh; margin-left: auto">
-                <div class="device-state-text">Device Status</div>
+                <div class="device-state-text">Current Status</div>
                 <span @click.stop="">
                 <el-switch
                     v-model="item.state"
@@ -54,10 +54,11 @@
           <el-form-item label="Device Type" prop="type">
             <el-input v-model="tempModalData.type"></el-input>
           </el-form-item>
-          <el-form-item label="Device State">
+          <el-form-item label="Current Status">
             <el-switch v-model="tempModalData.state"></el-switch>
           </el-form-item>
-          <div style="text-align: center" v-if="tempModalData.id !== undefined">
+          <div style="font-family: Courier New,monospace; font-size: 5px;">*Note: Device current status refers to blablablabla...</div>
+          <div style="text-align: center; margin-top: 15px" v-if="tempModalData.id !== undefined">
             <span>Device ID </span>
             <span style="font-family: Courier New,monospace; font-weight: 600">{{ tempModalData.id }}</span>
           </div>
