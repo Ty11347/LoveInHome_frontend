@@ -1,14 +1,6 @@
 <template>
   <div class="login-main-wrapper">
     <div class="login-container">
-      <nav class="login-reg-header">
-        <el-row>
-          <el-col :span="4">LOGO HERE</el-col>
-          <el-col :offset="16" :span="4">
-            <button id="about-us">About Us</button>
-          </el-col>
-        </el-row>
-      </nav>
       <div class="login">
         <h2>Management System Login</h2>
         <form @submit.prevent="login">
@@ -18,8 +10,7 @@
           </div>
           <div class="form-group">
             <label for="password" class="label-text">Password</label>
-            <el-input id="password" v-model="password" placeholder="" show-password clearable
-                      class="password-input"></el-input>
+            <el-input id="password" v-model="password" placeholder="" show-password clearable class="password-input"></el-input>
           </div>
           <div class="form-group">
             <span class="new-reg-text" @click="toReg">
@@ -128,16 +119,6 @@ export default {
 <style scoped>
 @import "../assets/font/font.css";
 
-#about-us{
-  font-family: CentralW01-Light;
-  font-weight: 500;
-  background-color: #009B7164;
-  font-size: 2vh;
-  width: 10vw;
-  /*line-height: 10vh;*/
-  margin: 2vh 0;
-}
-
 .login-main-wrapper {
   /*background-color: #bcd6d2;*/
   background-image: url("../../public/bg/bg1.jpg");
@@ -158,7 +139,6 @@ export default {
   width: 40%;
   max-width: 45vw;
   padding: 20px;
-  margin-top: 10vh;
   /*border: 1px solid #ccc;*/
   /*border-radius: 5px;*/
   /*background-color: #ffffff88;*/
@@ -181,7 +161,7 @@ h2 {
   font-family: "CentralW01-Light";
 }
 
-.label-text {
+.label-text{
   font-family: "CentralW01-Light";
   color: #DDD;
 }
@@ -228,31 +208,19 @@ button {
   color: #EEE;
 }
 
-#login-btn {
+#login-btn{
   background-color: #5BE2C845;
   font-family: CentralW01-Light;
   font-size: 3vh;
 }
 
-#login-btn:hover {
+#login-btn:hover{
   background-color: #5BE2C880;
   transition: background-color 300ms ease;
   font-family: CentralW01-Light;
   font-size: 3vh;
 }
 
-.login-reg-header {
-  /*background-color: #FFFFFF7D;*/
-  background-color: rgba(249, 250, 253, 0.055);
-  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(219, 219, 250, 0.35) 10.94%, rgba(255, 255, 255, 0.5) 86.46%, rgba(255, 255, 255, 0.3) 100%);
-  backdrop-filter: blur(5px);
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 10vh;
-  width: 100%;
-  box-shadow: 0 1.5625rem 2.8125rem rgba(36, 42, 51, 0.15);
-}
 </style>
 
 <style>
@@ -269,4 +237,16 @@ button {
 .password-input .el-input__inner:hover {
   border-color: #EEE !important;
 }
+
+/*.el-input__inner {*/
+/*  background-color: transparent !important;*/
+/*  border-radius: 0 !important;*/
+/*  border-width: 0 0 2px 0 !important;*/
+/*  border-color: #C0C4CC !important;*/
+/*  color: #DDD !important;*/
+/*}*/
+
+/*.el-input__inner:hover{*/
+/*  border-color: #EEE !important;*/
+/*}*/
 </style>
