@@ -298,7 +298,12 @@ export default {
 }
 </script>
 
+
 <style scoped>
+div{
+  font-family: Poppins,serif;
+}
+
 .view-wrapper {
   padding-bottom: 10vh;
   margin: 0;

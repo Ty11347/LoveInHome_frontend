@@ -42,5 +42,6 @@ body{
   background-color: #bcd6d2;;
   height: auto;
   overflow: auto;
+  font-family: Poppins,serif;
 }
 </style>

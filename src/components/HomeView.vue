@@ -63,10 +63,10 @@ export default {
           name: "User Management",
           page: 3
         },
-        // {
-        //   name: "House Management",
-        //   page: 1
-        // },
+        {
+          name: "House Management",
+          page: 1
+        },
         {
           name: "Parameter Management",
           page: 2
@@ -133,5 +133,9 @@ export default {
   background-color: #ddd;
   transition: background-color 0.45s ease-out;
   cursor: pointer;
+}
+
+div{
+  font-family: Poppins,serif;
 }
 </style>

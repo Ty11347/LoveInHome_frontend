@@ -376,6 +376,10 @@ export default {
   border-color: #e3e5e8;
 }
 
+div{
+  font-family: Poppins,serif;
+}
+
 </style>
 
 <style>

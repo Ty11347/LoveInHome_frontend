@@ -116,18 +116,20 @@ export default {
           title: 'Admin',
           slot: 'admin',
           key: 'isAdmin',
+          width: 120,
           sortable: true
         },
         {
           title: 'Active',
           slot: 'active',
           key: 'isActive',
+          width: 120,
           sortable: true
         },
         {
           title: 'Action',
           slot: 'action',
-          width: 150,
+          width: 180,
           align: 'center'
         }
       ],
@@ -488,5 +490,9 @@ export default {
 #confirm-btn:hover {
   border-color: transparent;
   color: white;
+}
+
+div{
+  font-family: Poppins,serif;
 }
 </style>
