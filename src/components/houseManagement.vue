@@ -2,8 +2,8 @@
   <div class="view-wrapper">
     <div class="device-title">
       Houses
-      <!--      <el-button style="margin-left: auto" @click="addDevice">Add New House</el-button>-->
-      <el-button style="margin-left: auto" @click="empty">Add New House</el-button>
+      <el-button style="margin-left: auto" @click="addDevice">Add New House</el-button>
+      <!--      <el-button style="margin-left: auto" @click="empty">Add New House</el-button>-->
     </div>
     <div style="text-align: center; font-size: 3vh" v-show="loading">Loading data...</div>
     <div class="device-item-wrapper" v-if="refresh">
@@ -29,9 +29,12 @@
             <div class="device-type-text">
               <div class="device-item-title-text">Parameter Count</div>
               <div class="device-item-text">{{
-                  item.houseParameters.temperature === true ?
-                      (item.houseParameters.light === true ?
-                          (item.houseParameters.windy === true ? 3 : 2) : 1) : 0
+                  Object.values(item.houseParameters).reduce((count, value) => {
+                    if (value === true) {
+                      count++;
+                    }
+                    return count;
+                  }, 0)
                 }}
               </div>
             </div>
@@ -49,35 +52,97 @@
           <span>House Info</span>
         </p>
       </template>
+      <!--.....................................-->
       <div>
         <el-form label-position="right" label-width="120px" :model="tempModalData" ref="houseForm"
                  :rules="houseFormRules" class="house-form">
           <el-form-item label="Address" prop="address" id="form-item-addr">
             <el-input v-model="tempModalData.address"></el-input>
           </el-form-item>
+          <!--.....................................-->
           <el-form-item label="State" prop="state" id="form-item-state">
             <el-input v-model="tempModalData.state"></el-input>
           </el-form-item>
+          <!--.....................................-->
           <el-collapse class="house-collapse" v-model="activeNames" @change="empty" accordion
                        style="width: 520px; margin: 0 auto;color: #606266">
+            <!--.....................................-->
             <el-collapse-item title="User" name="user" style="color: #606266">
-              <div v-for="user in tempModalData.users" :key="user.id">
-                <div class="collapse-title-text">Username: {{ user.username }}</div>
+              <!--.....................................-->
+              <el-form label-position="right" label-width="180px" :model="adminObj" ref="houseUserForm"
+                       :rules="houseFormRules" class="house-inner-form" v-if="addOrUpdate === 0">
+                <el-form-item label="Add Admin House User" style="margin-top: 20px">
+                  <el-select v-model="adminObj.id" placeholder="Please Select a User" style="width: 70%"
+                  >
+                    <div v-for="avaUser in availableUsers" :key="avaUser.id">
+                      <el-option :label="avaUser.username" :value="avaUser.id"></el-option>
+                    </div>
+                  </el-select>
+                  <button class="add-btn" @click.prevent="addAdminUser2List(adminObj.id)">Add</button>
+                </el-form-item>
+                <el-form-item label="Add House User" style="margin-top: 20px">
+                  <el-select v-model="userObj.id" placeholder="Please Select a User" style="width: 70%"
+                  >
+                    <div v-for="avaUser in availableUsers" :key="avaUser.id">
+                      <el-option :label="avaUser.username" :value="avaUser.id"></el-option>
+                    </div>
+                  </el-select>
+                  <button class="add-btn" @click.prevent="addUser2List(userObj.id)">Add</button>
+                </el-form-item>
+              </el-form>
+              <div style="max-height: 130px; overflow: auto">
+                <div v-for="(user, index) in addedUsers" :key="user.id">
+                  <el-row style="margin: 12px 0">
+                    <el-col :span="19">
+                      <div>
+                        <div>Username</div>
+                        <span v-show="user.isAdmin" style="color: indianred">{{ user.username }} (House Admin)</span>
+                        <span v-show="!user.isAdmin">{{ user.username }}</span>
+                      </div>
+                    </el-col>
+                    <el-col :span="5">
+                      <div class="modal-delete-btn">
+                        <i class="el-icon-close" @click="deleteItemInList(index)"></i>
+                      </div>
+                    </el-col>
+                  </el-row>
+                </div>
+              </div>
+              <!--.....................................-->
+            </el-collapse-item>
+            <!--.....................................-->
+            <el-collapse-item title="Device" name="device">
+              <!--.....................................-->
+              <el-form label-position="right" label-width="180px" :model="deviceObj" ref="houseUserForm"
+                       :rules="houseFormRules" class="house-inner-form" v-if="addOrUpdate === 0">
+                <el-form-item label="Add Available Device" style="margin-top: 20px">
+                  <el-select v-model="deviceObj.id" placeholder="Please Select a Device"
+                             style="width: 98%"
+                             @change="addDevice2List(deviceObj.id)">
+                    <div v-for="avaDevice in availableDevices" :key="avaDevice.id">
+                      <el-option :label="avaDevice.serialNum" :value="avaDevice.id"></el-option>
+                    </div>
+                  </el-select>
+                </el-form-item>
+              </el-form>
+
+              <div v-for="device in addedDevices" :key="device.id">
                 <el-row>
-                  <el-col :offset="2" :span="11">
-                    <el-form-item label="Set As Admin" class="coll-box">
-                      <el-switch v-model="user.isAdmin"></el-switch>
-                    </el-form-item>
+                  <el-col :span="19">
+                    <div>
+                      <div>Serial No.</div>
+                      {{ device.serialNum }}
+                    </div>
                   </el-col>
-                  <el-col :span="11">
-                    <el-form-item label="Set As Active" class="coll-box">
-                      <el-switch v-model="user.isActive"></el-switch>
-                    </el-form-item>
+                  <el-col :span="5">
+                    <div>
+                      <span>Device Status</span>
+                      <el-switch v-model="device.state"></el-switch>
+                    </div>
                   </el-col>
                 </el-row>
               </div>
-            </el-collapse-item>
-            <el-collapse-item title="Device" name="device">
+              <!--.....................................-->
               <div v-for="device in tempModalData.devices" :key="device.id">
                 <div class="collapse-title-text">Serial Number: {{ device.serialNum }}</div>
                 <el-row>
@@ -96,6 +161,19 @@
             </el-collapse-item>
           </el-collapse>
 
+          <div style="width: 80%; margin: 0 auto">
+            <el-row>
+              <el-col :span="24">
+                <div style="margin: 16px 0 10px 0">Parameters</div>
+              </el-col>
+              <el-col :span="8" v-for="(para, index) in parameters" :key="para">
+                <el-form-item :label="para" style="margin-bottom: 0">
+                  <el-switch v-model="parametersValue[index]"></el-switch>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </div>
+          <!--.....................................-->
           <div style="margin: 10px 40px">
             <div v-if="tempModalData.createdDate !== undefined">
               <span>Create Date: </span>
@@ -106,12 +184,6 @@
               <span>{{ tempModalData.lastModifiedDate }}</span>
             </div>
             <div v-if="tempModalData.houseParameters !== undefined">
-              <span>House Parameters:  </span>
-              <span>{{
-                  JSON.stringify(tempModalData.houseParameters)
-                      .replace(/[{"}]/g, " ")
-                      .replace(/ :/g, ": ")
-                }}</span>
             </div>
             <div v-if="tempModalData.id !== undefined">
               <span>Device ID </span>
@@ -120,10 +192,11 @@
           </div>
         </el-form>
       </div>
+      <!--.....................................-->
       <template #footer>
         <Button size="large" @click="closeModal" id="cancel-btn">Cancel</Button>
         <Button size="large" @click="confirmModal(addOrUpdate)" id="confirm-btn">Confirm</Button>
-<!--        <Button size="large" @click="empty" id="confirm-btn">Confirm</Button>-->
+        <!--        <Button size="large" @click="empty" id="confirm-btn">Confirm</Button>-->
       </template>
     </Modal>
 
@@ -145,14 +218,25 @@ export default {
       addOrUpdate: 0, // 0 for add 1 for update
       refresh: true,
       houseFormRules: { // unfinished @ 1:50 June 15
-        name: [
-          {required: true, message: 'Please input parameter name', trigger: 'blur'},
+        address: [
+          {required: true, message: 'Please input address', trigger: 'blur'},
         ],
-        unit: [
-          {required: true, message: 'Please input parameter unit', trigger: 'blur'},
+        state: [
+          {required: true, message: 'Please input state', trigger: 'blur'},
         ],
       },
-      activeNames: ''
+      activeNames: '',
+      availableUsers: [],
+      availableDevicesDel: [],
+      availableDevices: [],
+      adminObj: {},
+      userObj: {},
+      userArr: [],
+      deviceObj: {},
+      addedDevices: [],
+      addedUsers: [],
+      parameters: [],
+      parametersValue: [],
     }
   },
   watch: {},
@@ -160,6 +244,95 @@ export default {
     empty() {
 
     },
+
+    combineAdminAndUser() {
+      this.addedUsers = [];
+      this.addedUsers.unshift(this.dcp(this.adminObj));
+      this.addedUsers.push(...this.userArr);
+    },
+
+    async addAdminUser2List(id) {
+      if (this.adminObj.isAdmin !== undefined){
+
+        console.log(this.dcp(this.availableDevicesDel));
+        this.availableDevicesDel.map((item, index) => {
+          if (item.id === this.adminObj.id) {
+            console.log("in");
+            this.availableDevicesDel.splice(index, 1);
+            this.availableUsers.push(item);
+          }
+        });
+      }
+      console.log(id);
+      this.adminObj = {};
+      this.adminObj.id = id;
+      this.adminObj.isAdmin = true;
+      var res = await api.userAPI.getUserByID(id);
+      if (res.status === 200) {
+        this.adminObj.username = res.data.username;
+        this.availableUsers.map((item, index) => {
+          if (item.id === this.adminObj.id) {
+            this.availableUsers.splice(index, 1);
+            this.availableDevicesDel.push(item);
+            console.log(this.dcp(this.availableDevicesDel));
+          }
+        });
+      } else {
+        this.$message({
+          message: 'Error: Fetch User by ID failed',
+          type: 'warning'
+        });
+        this.adminObj.username = "N/A";
+      }
+      this.combineAdminAndUser();
+    },
+
+    async addUser2List(id) {
+      console.log(id);
+      this.userObj = {};
+      var res = await api.userAPI.getUserByID(id);
+      this.userObj.id = id;
+      this.userObj.isAdmin = false;
+      if (res.status === 200) {
+        this.userObj.username = res.data.username;
+        this.availableUsers.map((item, index) => {
+          if (item.id === this.userObj.id) {
+            this.availableUsers.splice(index, 1);
+            this.availableDevicesDel.push(item);
+          }
+        });
+      } else {
+        this.$message({
+          message: 'Error: Fetch User by ID failed',
+          type: 'warning'
+        });
+        this.userObj.username = "N/A";
+      }
+      this.userArr.push(this.userObj);
+      this.combineAdminAndUser();
+    },
+
+    async addDevice2List(id) {
+      this.deviceObj = {};
+      console.log(id);
+      this.deviceObj.id = id;
+      this.deviceObj.state = true;
+      this.deviceObj.isInstalled = true;
+      console.log(this.dcp(this.deviceObj));
+      var res = await api.deviceAPI.getAllDeviceById(id);
+      if (res.status === 200) {
+        this.deviceObj.serialNum = res.data.serialNum;
+      } else {
+        this.$message({
+          message: 'Error: Fetch Device by ID failed',
+          type: 'warning'
+        });
+        this.deviceObj.serialNum = "N/A";
+      }
+      this.addedDevices = [];
+      this.addedDevices.push(this.dcp(this.deviceObj));
+    },
+
     refreshList() {
       this.refresh = !this.refresh;
       this.refresh = !this.refresh;
@@ -219,6 +392,7 @@ export default {
     },
 
     clickHouse(device) {
+      this.getAvailableUsersAndDevices();
       this.houseSelected = device;
       this.tempModalData = JSON.parse(JSON.stringify(this.houseSelected));
       this.houseModalStatus = true;
@@ -226,6 +400,7 @@ export default {
     },
 
     addDevice() { // unfinished
+      this.getAvailableUsersAndDevices();
       this.houseModalStatus = true;
       this.addOrUpdate = 0;
       this.tempModalData = {};
@@ -243,14 +418,30 @@ export default {
     confirmModal(code) { // unfinished
       // with api
       this.$refs.houseForm.validate((valid) => {
-        if (valid) {
+        if (valid
+            && this.deviceObj.id !== undefined
+            && this.deviceObj.serialNum !== undefined) {
           if (code === 0) { // add new
             this.allHouseInfo.push(this.tempModalData);
-            api.houseAPI.addHouse({
+            var tempArr = [];
+            tempArr.push(this.adminObj);
+            var hp = {};
+            for (let i = 0; i < this.parameters.length; i++) {
+              hp[this.parameters[i]] = this.parametersValue[i];
+            }
+            // delete this.addedDevices[0].serialNum;
+            for (let i = 0; i < this.addedDevices.length; i++) {
+              this.addedDevices[i].state = this.addedDevices[i].state ? "ON" : "OFF";
+            }
+            var testapi = {
               address: this.tempModalData.address,
-              state: this.tempModalData.state
-              // other attributes
-            }).then(res => {
+              state: this.tempModalData.state,
+              users: tempArr,
+              devices: this.addedDevices,
+              houseParameters: hp
+            };
+            console.log(testapi);
+            api.houseAPI.addHouse(testapi).then(res => {
               if (res.status === 201) {
                 this.refreshList();
                 this.$message({
@@ -266,8 +457,7 @@ export default {
                 });
               }
             })
-          }
-          else if (code === 1) { // update
+          } else if (code === 1) { // update
             const index = this.allHouseInfo.findIndex(item => item.id === this.tempModalData.id);
             if (index !== -1) {
               this.allHouseInfo[index] = this.tempModalData;
@@ -321,6 +511,46 @@ export default {
           return false;
         }
       });
+    },
+
+    getAvailableUsersAndDevices() {
+      api.deviceAPI.getAvaDevice().then(res => {
+        if (res.status === 200) {
+          console.log(res.data);
+          this.availableDevices = res.data;
+        } else {
+          this.$message({
+            message: 'Fetch Device List Failed, Status:' + res.status,
+            type: 'warning'
+          });
+        }
+      })
+      api.userAPI.getAvaUser().then(res => {
+        if (res.status === 200) {
+          this.availableUsers = res.data;
+        } else {
+          this.$message({
+            message: 'Fetch User List Failed, Status:' + res.status,
+            type: 'warning'
+          });
+        }
+      })
+      api.paraAPI.getAllParaName().then(res => {
+        if (res.status === 200) {
+          this.parameters = res.data;
+          console.log(res.data);
+          this.parametersValue = [];
+          for (let i = 0; i < this.parameters.length; i++) {
+            this.parametersValue.push(true);
+          }
+          console.log(this.parametersValue);
+        } else {
+          this.$message({
+            message: 'Fetch Parameter List Failed, Status:' + res.status,
+            type: 'warning'
+          });
+        }
+      })
     },
 
     dcp(obj) {
@@ -441,6 +671,21 @@ export default {
   cursor: pointer;
 }
 
+.modal-delete-btn {
+  margin-top: 8px;
+  font-size: 2.5vh;
+  vertical-align: middle;
+  width: 3vw;
+  margin-left: auto;
+}
+
+.modal-delete-btn:hover {
+  color: black;
+  font-size: 2.6vh;
+  transition: color, font-size 0.2s linear;
+  cursor: pointer;
+}
+
 #confirm-btn {
   background-color: #ff4f4f;
   color: #fff;
@@ -459,6 +704,23 @@ export default {
   color: #747b8b;
   background-color: #fff;
   border-color: #e3e5e8;
+}
+
+.add-btn {
+  padding: 0 1vw;
+  margin: 0 1vw;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: white;
+}
+
+.add-btn:hover {
+  padding: 0 1vw;
+  margin: 0 1vw;
+  border: 1px solid #888;
+  border-radius: 5px;
+  background: #ddd;
+  cursor: pointer;
 }
 
 div {
@@ -504,6 +766,10 @@ div {
 
 .house-form .el-form-item div {
   padding-right: 7% !important;
+}
+
+.house-inner-form .el-form-item div {
+  padding-right: 0 !important;
 }
 
 </style>
