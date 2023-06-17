@@ -20,6 +20,9 @@ const paraAPI = {
   getAllPara: (param) => {
     return get('/api/parameter', param)
   },
+  getAllParaName: () => {
+    return get('/api/parameter/names', undefined)
+  },
   getAllParaById: (id) => {
     return get('/api/parameter/' + id, undefined)
   },
@@ -39,6 +42,9 @@ const deviceAPI = {
   getAllDevice: (param) => {
     return get('/api/device', param)
   },
+  getAvaDevice: () => {
+    return get('/api/device/uninstalled', undefined)
+  },
   getAllDeviceById: (id) => {
     return get('/api/device/' + id, undefined)
   },
@@ -57,6 +63,9 @@ const deviceAPI = {
 const userAPI = {
   getAllUser: () => {
     return get('/api/user', undefined)
+  },
+  getAvaUser: () => {
+    return get('/api/user/unactive', undefined)
   },
   getUserByID: (id) => {
     return get('/api/user/' + id, undefined)
@@ -82,6 +91,9 @@ const houseAPI = {
   },
   addHouse: (param) => {
     return post('/api/house', param)
+  },
+  changeHouseAdmin: (id, userId) => {
+    return put('/api/house' + id + "/admin" + userId, undefined)
   },
   updateHouse: (id, param) => {
     return put('/api/house/' + id, param)
