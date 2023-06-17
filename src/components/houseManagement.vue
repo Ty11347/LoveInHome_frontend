@@ -59,18 +59,14 @@
           <el-form-item label="Address" prop="address" id="form-item-addr">
             <el-input v-model="tempModalData.address"></el-input>
           </el-form-item>
-          <!--.....................................-->
           <el-form-item label="State" prop="state" id="form-item-state">
             <el-input v-model="tempModalData.state"></el-input>
           </el-form-item>
-          <!--.....................................-->
           <el-collapse class="house-collapse" v-model="activeNames" @change="empty" accordion
                        style="width: 520px; margin: 0 auto;color: #606266">
-            <!--.....................................-->
             <el-collapse-item title="User" name="user" style="color: #606266">
-              <!--.....................................-->
               <el-form label-position="right" label-width="180px" :model="adminObj" ref="houseUserForm"
-                       :rules="houseFormRules" class="house-inner-form" v-if="addOrUpdate === 0">
+                       :rules="houseFormRules" class="house-inner-form">
                 <el-form-item label="Add Admin User" style="margin-top: 20px">
                   <el-select v-model="adminObj.id" placeholder="Please Select a User" style="width: 70%"
                   >
@@ -108,13 +104,10 @@
                   </el-row>
                 </div>
               </div>
-              <!--.....................................-->
             </el-collapse-item>
-            <!--.....................................-->
             <el-collapse-item title="Device" name="device">
-              <!--.....................................-->
               <el-form label-position="right" label-width="180px" :model="deviceObj" ref="houseUserForm"
-                       :rules="houseFormRules" class="house-inner-form" v-if="addOrUpdate === 0">
+                       :rules="houseFormRules" class="house-inner-form">
                 <el-form-item label="Add Available Device" style="margin-top: 20px">
                   <el-select v-model="deviceObj.id" placeholder="Please Select a Device"
                              style="width: 70%"
@@ -371,7 +364,7 @@ export default {
             this.refreshList();
             this.$message({
               type: 'warning',
-              message: 'Error: Delete Fail'
+              message: 'Error: Delete Failed'
             });
           }
         })
@@ -383,23 +376,29 @@ export default {
       });
     },
 
-    clickHouse(device) {
-      this.getAvailableUsersAndDevices();
-      this.houseSelected = device;
-      this.tempModalData = JSON.parse(JSON.stringify(this.houseSelected));
+    async clickHouse(device) {
       this.houseModalStatus = true;
       this.addOrUpdate = 1;
+      this.houseSelected = device;
+      console.log(device);
+      this.tempModalData = this.dcp(this.houseSelected);
+      this.addedDevices = this.dcp(this.tempModalData.devices);
+      this.addedUsers = this.dcp(this.tempModalData.users);
+      await this.getAvailableUsersAndDevices();
+      this.parameters = Object.keys(this.dcp(this.tempModalData.houseParameters));
+      this.parametersValue = Object.values(this.dcp(this.tempModalData.houseParameters));
     },
 
-    addHouse() { // unfinished
-      this.getAvailableUsersAndDevices();
+    async addHouse() {
       this.houseModalStatus = true;
       this.addOrUpdate = 0;
-      this.tempModalData = {};
       this.tempModalData = {
         address: "",
         state: "",
       };
+      this.addedDevices = [];
+      this.addedUsers = [];
+      await this.getAvailableUsersAndDevices();
     },
 
     closeModal() {
@@ -416,82 +415,117 @@ export default {
             for (let i = 0; i < this.parameters.length; i++) {
               hp[this.parameters[i]] = this.parametersValue[i];
             }
-            // delete this.addedDevices[0].serialNum;
-            var tempAD = this.dcp(this.addedDevices);
+            const tempAD = this.dcp(this.addedDevices);
             for (let i = 0; i < this.addedDevices.length; i++) {
               tempAD[i].state = this.addedDevices[i].state ? "ON" : "OFF";
             }
-            var testapi = {
+            const temp = {
               address: this.tempModalData.address,
               state: this.tempModalData.state,
               users: this.addedUsers,
               devices: tempAD,
               houseParameters: hp
             };
-            this.allHouseInfo.push(testapi);
-            console.log(testapi);
-            api.houseAPI.addHouse(testapi).then(res => {
-              if (res.status === 201) {
-                this.refreshList();
-                this.$message({
-                  type: 'success',
-                  message: 'Add New House Success'
-                });
-                this.closeModal();
-              } else {
-                this.refreshList();
-                this.$message({
-                  type: 'warning',
-                  message: 'Add New House Failed'
-                });
-              }
-            })
+            if (temp.users.length === 0 || !temp.users.some(user => user.isAdmin === true)) {
+              this.$message({
+                type: 'warning',
+                message: 'At least one Admin User is required.'
+              });
+            } else {
+              this.allHouseInfo.push(temp);
+              api.houseAPI.addHouse(temp).then(res => {
+                if (res.status === 201) {
+                  this.refreshList();
+                  this.$message({
+                    type: 'success',
+                    message: 'Add New House Success'
+                  });
+                  this.closeModal();
+                } else {
+                  this.refreshList();
+                  this.$message({
+                    type: 'warning',
+                    message: 'Add New House Failed'
+                  });
+                }
+              });
+            }
           } else if (code === 1) { // update
             const index = this.allHouseInfo.findIndex(item => item.id === this.tempModalData.id);
             if (index !== -1) {
               this.allHouseInfo[index] = this.tempModalData;
             }
-            var user = [];
-            var device = [];
-            for (var i = 0; i < this.tempModalData.users.length; i++) {
-              user.push({
-                id: this.tempModalData.users[i].id,
-                isAdmin: this.tempModalData.users[i].isAdmin,
-                isActive: this.tempModalData.users[i].isActive,
-              })
-            }
-            for (var j = 0; j < this.tempModalData.devices.length; j++) {
-              device.push({
-                id: this.tempModalData.devices[j].id,
-                state: this.tempModalData.devices[j].state ? "ON" : "OFF",
-                // isInstalled: this.tempModalData.devices[j].isInstalled,
-              })
-            }
-            api.houseAPI.updateHouse(this.tempModalData.id, {
+
+            const hp = this.parameters.reduce((obj, parameter, i) => {
+              obj[parameter] = this.parametersValue[i];
+              return obj;
+            }, {});
+
+            this.addedDevices = this.addedDevices.map(({
+                                                         createdDate,
+                                                         lastModifiedDate,
+                                                         type,
+                                                         serialNum,
+                                                         ...rest
+                                                       }) => rest);
+
+            this.addedUsers = this.addedUsers.map(({
+                                                     createdDate,
+                                                     lastModifiedDate,
+                                                     password,
+                                                     email,
+                                                     username,
+                                                     ...rest
+                                                   }) => rest);
+
+            const tempAD = this.addedDevices.map(device => ({
+              ...device,
+              state: device.state ? "ON" : "OFF"
+            }));
+
+            const temp = {
               address: this.tempModalData.address,
               state: this.tempModalData.state,
-              devices: device,
-              users: user,
-              houseParameters: this.tempModalData.houseParameters,
-              // other attributes
-            }).then(res => {
-              if (res.status === 200) {
-                this.refreshList();
-                this.$message({
-                  type: 'success',
-                  message: 'Update House Success'
-                });
-                this.closeModal();
-              } else {
-                this.refreshList();
+              devices: tempAD,
+              users: this.addedUsers,
+              houseParameters: hp,
+            };
+
+            const hasAdminUser = temp.users.length > 0 && temp.users.some(user => user.isAdmin === true);
+            const hasDevices = temp.devices.length > 0;
+
+            if (!hasAdminUser || !hasDevices) {
+              if (!hasAdminUser) {
                 this.$message({
                   type: 'warning',
-                  message: 'Update House Failed'
+                  message: 'At least one admin is required.'
                 });
               }
-            })
+              if (!hasDevices) {
+                this.$message({
+                  type: 'warning',
+                  message: 'At least one device is required.'
+                });
+              }
+            } else {
+              api.houseAPI.updateHouse(this.tempModalData.id, temp).then(res => {
+                this.refreshList();
+                if (res.status === 200) {
+                  this.$message({
+                    type: 'success',
+                    message: 'Update House Success'
+                  });
+                } else {
+                  this.$message({
+                    type: 'warning',
+                    message: 'Update House Failed'
+                  });
+                }
+                this.closeModal();
+              });
+              this.closeModal();
+            }
           }
-          this.closeModal();
         } else {
           this.$message({
             message: 'Error: Please refill the form',
@@ -502,45 +536,41 @@ export default {
       });
     },
 
-    getAvailableUsersAndDevices() {
-      api.deviceAPI.getAvaDevice().then(res => {
-        if (res.status === 200) {
-          this.availableDevices = res.data;
-          this.adBackup = res.data;
-        } else {
-          this.$message({
-            message: 'Fetch Device List Failed, Status:' + res.status,
-            type: 'warning'
-          });
+    async getAvailableUsersAndDevices() {
+      var res1 = await api.deviceAPI.getAvaDevice();
+      if (res1.status === 200) {
+        this.availableDevices = res1.data;
+        this.adBackup = res1.data;
+      } else {
+        this.$message({
+          message: 'Fetch Device List Failed, Status:' + res1.status,
+          type: 'warning'
+        });
+      }
+      var res2 = await api.userAPI.getAvaUser();
+      if (res2.status === 200) {
+        this.availableUsers = res2.data;
+        this.auBackup = res2.data;
+      } else {
+        this.$message({
+          message: 'Fetch User List Failed, Status:' + res2.status,
+          type: 'warning'
+        });
+      }
+      var res3 = await api.paraAPI.getAllParaName();
+      if (res3.status === 200) {
+        this.parameters = res3.data;
+        console.log(res3.data);
+        this.parametersValue = [];
+        for (let i = 0; i < this.parameters.length; i++) {
+          this.parametersValue.push(true);
         }
-      })
-      api.userAPI.getAvaUser().then(res => {
-        if (res.status === 200) {
-          this.availableUsers = res.data;
-          this.auBackup = res.data;
-        } else {
-          this.$message({
-            message: 'Fetch User List Failed, Status:' + res.status,
-            type: 'warning'
-          });
-        }
-      })
-      api.paraAPI.getAllParaName().then(res => {
-        if (res.status === 200) {
-          this.parameters = res.data;
-          console.log(res.data);
-          this.parametersValue = [];
-          for (let i = 0; i < this.parameters.length; i++) {
-            this.parametersValue.push(true);
-          }
-          console.log(this.parametersValue);
-        } else {
-          this.$message({
-            message: 'Fetch Parameter List Failed, Status:' + res.status,
-            type: 'warning'
-          });
-        }
-      })
+      } else {
+        this.$message({
+          message: 'Fetch Parameter List Failed, Status:' + res3.status,
+          type: 'warning'
+        });
+      }
     },
 
     dcp(obj) {
