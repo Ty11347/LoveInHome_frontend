@@ -2,7 +2,7 @@
   <div class="view-wrapper">
     <div class="device-title">
       Houses
-      <el-button style="margin-left: auto" @click="addDevice">Add New House</el-button>
+      <el-button style="margin-left: auto" @click="addHouse">Add New House</el-button>
       <!--      <el-button style="margin-left: auto" @click="empty">Add New House</el-button>-->
     </div>
     <div style="text-align: center; font-size: 3vh" v-show="loading">Loading data...</div>
@@ -71,7 +71,7 @@
               <!--.....................................-->
               <el-form label-position="right" label-width="180px" :model="adminObj" ref="houseUserForm"
                        :rules="houseFormRules" class="house-inner-form" v-if="addOrUpdate === 0">
-                <el-form-item label="Add Admin House User" style="margin-top: 20px">
+                <el-form-item label="Add Admin User" style="margin-top: 20px">
                   <el-select v-model="adminObj.id" placeholder="Please Select a User" style="width: 70%"
                   >
                     <div v-for="avaUser in availableUsers" :key="avaUser.id">
@@ -91,7 +91,7 @@
                 </el-form-item>
               </el-form>
               <div style="max-height: 130px; overflow: auto">
-                <div v-for="(user, index) in addedUsers" :key="user.id">
+                <div v-for="user in addedUsers" :key="user.id">
                   <el-row style="margin: 12px 0">
                     <el-col :span="19">
                       <div>
@@ -102,7 +102,7 @@
                     </el-col>
                     <el-col :span="5">
                       <div class="modal-delete-btn">
-                        <i class="el-icon-close" @click="deleteItemInList(index)"></i>
+                        <i class="el-icon-close" @click="deleteItemInList(user.id)"></i>
                       </div>
                     </el-col>
                   </el-row>
@@ -117,47 +117,39 @@
                        :rules="houseFormRules" class="house-inner-form" v-if="addOrUpdate === 0">
                 <el-form-item label="Add Available Device" style="margin-top: 20px">
                   <el-select v-model="deviceObj.id" placeholder="Please Select a Device"
-                             style="width: 98%"
-                             @change="addDevice2List(deviceObj.id)">
+                             style="width: 70%"
+                  >
                     <div v-for="avaDevice in availableDevices" :key="avaDevice.id">
                       <el-option :label="avaDevice.serialNum" :value="avaDevice.id"></el-option>
                     </div>
                   </el-select>
+                  <button class="add-btn" @click.prevent="addDevice2List(deviceObj.id)">Add</button>
                 </el-form-item>
               </el-form>
-
-              <div v-for="device in addedDevices" :key="device.id">
-                <el-row>
-                  <el-col :span="19">
-                    <div>
-                      <div>Serial No.</div>
-                      {{ device.serialNum }}
-                    </div>
-                  </el-col>
-                  <el-col :span="5">
-                    <div>
-                      <span>Device Status</span>
-                      <el-switch v-model="device.state"></el-switch>
-                    </div>
-                  </el-col>
-                </el-row>
+              <div style="max-height: 130px; overflow: auto">
+                <div v-for="device in addedDevices" :key="device.id">
+                  <el-row style="margin: 12px 0">
+                    <el-col :span="14">
+                      <div>
+                        <div>Serial No.</div>
+                        {{ device.serialNum }}
+                      </div>
+                    </el-col>
+                    <el-col :span="5">
+                      <div>
+                        <span>Device Status</span>
+                        <el-switch v-model="device.state"></el-switch>
+                      </div>
+                    </el-col>
+                    <el-col :span="5">
+                      <div class="modal-delete-btn">
+                        <i class="el-icon-close" @click="deleteItemInDevice(device.id)"></i>
+                      </div>
+                    </el-col>
+                  </el-row>
+                </div>
               </div>
               <!--.....................................-->
-              <div v-for="device in tempModalData.devices" :key="device.id">
-                <div class="collapse-title-text">Serial Number: {{ device.serialNum }}</div>
-                <el-row>
-                  <el-col :offset="2" :span="11">
-                    <el-form-item label="Set As Installed" class="coll-box">
-                      <el-switch v-model="device.isInstalled"></el-switch>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="11">
-                    <el-form-item label="Set Status" class="coll-box">
-                      <el-switch v-model="device.state"></el-switch>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-              </div>
             </el-collapse-item>
           </el-collapse>
 
@@ -227,7 +219,6 @@ export default {
       },
       activeNames: '',
       availableUsers: [],
-      availableDevicesDel: [],
       availableDevices: [],
       adminObj: {},
       userObj: {},
@@ -237,6 +228,8 @@ export default {
       addedUsers: [],
       parameters: [],
       parametersValue: [],
+      auBackup: [],
+      adBackup: []
     }
   },
   watch: {},
@@ -251,32 +244,33 @@ export default {
       this.addedUsers.push(...this.userArr);
     },
 
-    async addAdminUser2List(id) {
-      if (this.adminObj.isAdmin !== undefined){
+    deleteItemInDevice(id) {
+      this.addedDevices.map((item, index) => {
+        if (item.id === id) {
+          this.addedDevices.splice(index, 1);
+        }
+      });
+      this.availableDevices = this.dcp(this.adBackup)
+      this.availableDevices = this.availableDevices.filter((item) => !this.addedDevices.some((ele) => ele.id === item.id));
+    },
 
-        console.log(this.dcp(this.availableDevicesDel));
-        this.availableDevicesDel.map((item, index) => {
-          if (item.id === this.adminObj.id) {
-            console.log("in");
-            this.availableDevicesDel.splice(index, 1);
-            this.availableUsers.push(item);
-          }
-        });
-      }
-      console.log(id);
+    deleteItemInList(id) {
+      this.addedUsers.map((item, index) => {
+        if (item.id === id) {
+          this.addedUsers.splice(index, 1);
+        }
+      });
+      this.availableUsers = this.dcp(this.auBackup)
+      this.availableUsers = this.availableUsers.filter((item) => !this.addedUsers.some((ele) => ele.id === item.id));
+    },
+
+    async addAdminUser2List(id) {
       this.adminObj = {};
       this.adminObj.id = id;
       this.adminObj.isAdmin = true;
       var res = await api.userAPI.getUserByID(id);
       if (res.status === 200) {
         this.adminObj.username = res.data.username;
-        this.availableUsers.map((item, index) => {
-          if (item.id === this.adminObj.id) {
-            this.availableUsers.splice(index, 1);
-            this.availableDevicesDel.push(item);
-            console.log(this.dcp(this.availableDevicesDel));
-          }
-        });
       } else {
         this.$message({
           message: 'Error: Fetch User by ID failed',
@@ -284,23 +278,19 @@ export default {
         });
         this.adminObj.username = "N/A";
       }
-      this.combineAdminAndUser();
+      this.addedUsers.push(this.dcp(this.adminObj));
+      this.adminObj = {};
+      this.availableUsers = this.dcp(this.auBackup)
+      this.availableUsers = this.availableUsers.filter((item) => !this.addedUsers.some((ele) => ele.id === item.id));
     },
 
     async addUser2List(id) {
-      console.log(id);
       this.userObj = {};
       var res = await api.userAPI.getUserByID(id);
       this.userObj.id = id;
       this.userObj.isAdmin = false;
       if (res.status === 200) {
         this.userObj.username = res.data.username;
-        this.availableUsers.map((item, index) => {
-          if (item.id === this.userObj.id) {
-            this.availableUsers.splice(index, 1);
-            this.availableDevicesDel.push(item);
-          }
-        });
       } else {
         this.$message({
           message: 'Error: Fetch User by ID failed',
@@ -308,17 +298,17 @@ export default {
         });
         this.userObj.username = "N/A";
       }
-      this.userArr.push(this.userObj);
-      this.combineAdminAndUser();
+      this.addedUsers.push(this.dcp(this.userObj));
+      this.userObj = {};
+      this.availableUsers = this.dcp(this.auBackup)
+      this.availableUsers = this.availableUsers.filter((item) => !this.addedUsers.some((ele) => ele.id === item.id));
     },
 
     async addDevice2List(id) {
       this.deviceObj = {};
-      console.log(id);
       this.deviceObj.id = id;
       this.deviceObj.state = true;
       this.deviceObj.isInstalled = true;
-      console.log(this.dcp(this.deviceObj));
       var res = await api.deviceAPI.getAllDeviceById(id);
       if (res.status === 200) {
         this.deviceObj.serialNum = res.data.serialNum;
@@ -329,8 +319,10 @@ export default {
         });
         this.deviceObj.serialNum = "N/A";
       }
-      this.addedDevices = [];
       this.addedDevices.push(this.dcp(this.deviceObj));
+      this.deviceObj = {};
+      this.availableDevices = this.dcp(this.adBackup)
+      this.availableDevices = this.availableDevices.filter((item) => !this.addedDevices.some((ele) => ele.id === item.id));
     },
 
     refreshList() {
@@ -399,7 +391,7 @@ export default {
       this.addOrUpdate = 1;
     },
 
-    addDevice() { // unfinished
+    addHouse() { // unfinished
       this.getAvailableUsersAndDevices();
       this.houseModalStatus = true;
       this.addOrUpdate = 0;
@@ -418,28 +410,25 @@ export default {
     confirmModal(code) { // unfinished
       // with api
       this.$refs.houseForm.validate((valid) => {
-        if (valid
-            && this.deviceObj.id !== undefined
-            && this.deviceObj.serialNum !== undefined) {
+        if (valid) {
           if (code === 0) { // add new
-            this.allHouseInfo.push(this.tempModalData);
-            var tempArr = [];
-            tempArr.push(this.adminObj);
             var hp = {};
             for (let i = 0; i < this.parameters.length; i++) {
               hp[this.parameters[i]] = this.parametersValue[i];
             }
             // delete this.addedDevices[0].serialNum;
+            var tempAD = this.dcp(this.addedDevices);
             for (let i = 0; i < this.addedDevices.length; i++) {
-              this.addedDevices[i].state = this.addedDevices[i].state ? "ON" : "OFF";
+              tempAD[i].state = this.addedDevices[i].state ? "ON" : "OFF";
             }
             var testapi = {
               address: this.tempModalData.address,
               state: this.tempModalData.state,
-              users: tempArr,
-              devices: this.addedDevices,
+              users: this.addedUsers,
+              devices: tempAD,
               houseParameters: hp
             };
+            this.allHouseInfo.push(testapi);
             console.log(testapi);
             api.houseAPI.addHouse(testapi).then(res => {
               if (res.status === 201) {
@@ -516,8 +505,8 @@ export default {
     getAvailableUsersAndDevices() {
       api.deviceAPI.getAvaDevice().then(res => {
         if (res.status === 200) {
-          console.log(res.data);
           this.availableDevices = res.data;
+          this.adBackup = res.data;
         } else {
           this.$message({
             message: 'Fetch Device List Failed, Status:' + res.status,
@@ -528,6 +517,7 @@ export default {
       api.userAPI.getAvaUser().then(res => {
         if (res.status === 200) {
           this.availableUsers = res.data;
+          this.auBackup = res.data;
         } else {
           this.$message({
             message: 'Fetch User List Failed, Status:' + res.status,
