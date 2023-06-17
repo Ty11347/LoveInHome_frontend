@@ -411,28 +411,39 @@ export default {
       this.$refs.houseForm.validate((valid) => {
         if (valid) {
           if (code === 0) { // add new
-            var hp = {};
-            for (let i = 0; i < this.parameters.length; i++) {
-              hp[this.parameters[i]] = this.parametersValue[i];
-            }
-            const tempAD = this.dcp(this.addedDevices);
-            for (let i = 0; i < this.addedDevices.length; i++) {
-              tempAD[i].state = this.addedDevices[i].state ? "ON" : "OFF";
-            }
-            const temp = {
-              address: this.tempModalData.address,
-              state: this.tempModalData.state,
-              users: this.addedUsers,
-              devices: tempAD,
-              houseParameters: hp
-            };
-            if (temp.users.length === 0 || !temp.users.some(user => user.isAdmin === true)) {
+            const isAdminCount = this.addedUsers.filter(user => user.isAdmin).length;
+
+            if (isAdminCount === 0) {
               this.$message({
                 type: 'warning',
-                message: 'At least one Admin User is required.'
+                message: 'At least one admin user is required'
+              });
+            } else if (isAdminCount > 1) {
+              this.$message({
+                type: 'warning',
+                message: 'Only one admin user is required'
               });
             } else {
+              var hp = {};
+              for (let i = 0; i < this.parameters.length; i++) {
+                hp[this.parameters[i]] = this.parametersValue[i];
+              }
+
+              const tempAD = this.dcp(this.addedDevices);
+              for (let i = 0; i < this.addedDevices.length; i++) {
+                tempAD[i].state = this.addedDevices[i].state ? "ON" : "OFF";
+              }
+
+              const temp = {
+                address: this.tempModalData.address,
+                state: this.tempModalData.state,
+                users: this.addedUsers,
+                devices: tempAD,
+                houseParameters: hp
+              };
+
               this.allHouseInfo.push(temp);
+
               api.houseAPI.addHouse(temp).then(res => {
                 if (res.status === 201) {
                   this.refreshList();
@@ -450,6 +461,7 @@ export default {
                 }
               });
             }
+
           } else if (code === 1) { // update
             const index = this.allHouseInfo.findIndex(item => item.id === this.tempModalData.id);
             if (index !== -1) {
@@ -491,22 +503,23 @@ export default {
               houseParameters: hp,
             };
 
-            const hasAdminUser = temp.users.length > 0 && temp.users.some(user => user.isAdmin === true);
-            const hasDevices = temp.devices.length > 0;
+            const isAdminUserCount = temp.users.reduce((count, user) => (user.isAdmin ? count + 1 : count), 0);
 
-            if (!hasAdminUser || !hasDevices) {
-              if (!hasAdminUser) {
-                this.$message({
-                  type: 'warning',
-                  message: 'At least one admin is required.'
-                });
-              }
-              if (!hasDevices) {
-                this.$message({
-                  type: 'warning',
-                  message: 'At least one device is required.'
-                });
-              }
+            if (isAdminUserCount === 0) {
+              this.$message({
+                type: 'warning',
+                message: 'At least one admin is required.'
+              });
+            } else if (isAdminUserCount > 1) {
+              this.$message({
+                type: 'warning',
+                message: 'Only one admin is allowed.'
+              });
+            } else if (temp.devices.length === 0) {
+              this.$message({
+                type: 'warning',
+                message: 'At least one device is required.'
+              });
             } else {
               api.houseAPI.updateHouse(this.tempModalData.id, temp).then(res => {
                 this.refreshList();
@@ -523,7 +536,6 @@ export default {
                 }
                 this.closeModal();
               });
-              this.closeModal();
             }
           }
         } else {
