@@ -171,7 +171,7 @@
             <div v-if="tempModalData.houseParameters !== undefined">
             </div>
             <div v-if="tempModalData.id !== undefined">
-              <span>Device ID </span>
+              <span>House ID </span>
               <span style="font-family: Courier New,monospace; font-weight: 600">{{ tempModalData.id }}</span>
             </div>
           </div>

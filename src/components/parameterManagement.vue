@@ -48,7 +48,7 @@
             <span>{{ tempModalData.lastModifiedDate }}</span>
           </div>
           <div v-if="tempModalData.id !== undefined">
-            <span>Device ID </span>
+            <span>Parameter ID </span>
             <span style="font-family: Courier New,monospace; font-weight: 600">{{ tempModalData.id }}</span>
           </div>
         </el-form>

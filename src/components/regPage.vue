@@ -147,7 +147,7 @@ export default {
       this.confirmPassword = "";
       setTimeout(() => {
         loginBtn.style.transition = "all 0.5s";
-        loginBtn.innerText = "Login";
+        loginBtn.innerText = "Register";
         loginBtn.style.backgroundColor = "#5BE2C880";
       }, 1500);
     },
