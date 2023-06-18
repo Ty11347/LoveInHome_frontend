@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="home" v-if="page !== 99 && page !== 100">
-      <div class="home-title">LovInHome Management System</div>
+      <div class="home-title">LoveInHome Management System</div>
       <div class="home-main-body">
         <div class="home-user-list-body">
           <el-button @click="sideMenuBarOpen = true" style="position: fixed; left: 2vw; top: 3vh; font-size: 1vw">
