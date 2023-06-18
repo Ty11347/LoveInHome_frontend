@@ -224,6 +224,7 @@ export default {
     },
 
     addUser() {
+      this.tempModalData = {};
       this.userModalStatus = true;
       this.addOrUpdate = 0;
     },
