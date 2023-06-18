@@ -219,7 +219,7 @@ button {
 }
 
 .new-reg-text {
-  font-size: 0.8vh;
+  font-size: 1.3vh;
   text-decoration: underline;
   cursor: pointer;
   font-family: "CentralW01-Light";

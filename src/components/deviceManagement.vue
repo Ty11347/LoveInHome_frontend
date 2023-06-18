@@ -19,22 +19,29 @@
               <div class="device-item-title-text">Type of Device:</div>
               <div class="device-item-text">{{ item.type }}</div>
             </div>
-
-              <div style="line-height: 12vh; margin-left: auto">
-                <div class="device-state-text">Current Status</div>
-                <span @click.stop="">
-                <el-switch
-                    v-model="item.state"
-                    active-color="#13ce66"
-                    inactive-color="#ff4949"
-                    @change="switchChange(item)">
+            
+          
+            <div style="line-height: 12vh; margin-left: auto">
+              <div class="device-installed-text">Installed Status</div>
+              <span @click.stop="">
+                <el-switch v-model="item.isInstalled" active-color="#13ce66" inactive-color="#ff4949"
+                  @change="switchChangeInstall(item)">
                 </el-switch>
               </span>
-              </div>
+            </div>
 
-              <div class="device-delete-btn">
-                <i class="el-icon-close" @click.stop="deleteItem(item.id, item.serialNum, item.type)"></i>
-              </div>
+            <div style="line-height: 12vh; margin-left: auto">
+              <div class="device-state-text">Current Status</div>
+              <span @click.stop="">
+                <el-switch v-model="item.state" active-color="#13ce66" inactive-color="#ff4949"
+                  @change="switchChangeStatus(item)">
+                </el-switch>
+              </span>
+            </div>
+
+            <div class="device-delete-btn">
+              <i class="el-icon-close" @click.stop="deleteItem(item.id, item.serialNum, item.type)"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -47,7 +54,8 @@
         </p>
       </template>
       <div>
-        <el-form label-position="right" label-width="120px" :model="tempModalData" ref="deviceForm" :rules="deviceFormRules">
+        <el-form label-position="right" label-width="120px" :model="tempModalData" ref="deviceForm"
+          :rules="deviceFormRules">
           <el-form-item label="Serial Number" prop="serialNum">
             <el-input v-model="tempModalData.serialNum"></el-input>
           </el-form-item>
@@ -67,7 +75,11 @@
             </el-col>
           </el-row>
 
-          <div style="font-family: Courier New,monospace; font-size: 5px;">*Note: Device current status refers to blablablabla...</div>
+          <div style="font-family: Courier New,monospace; font-size: 11px; color: red;">*Note: Current status indicates
+            whether the device is functioning correctly or experiencing any errors.</div>
+          <br>
+          <div style="font-family: Courier New,monospace; font-size: 11px; color: red;">*Note: Install status indicates
+            whether the device is installed or waiting.</div>
           <div style="text-align: center; margin-top: 15px" v-if="tempModalData.id !== undefined">
             <span>Device ID </span>
             <span style="font-family: Courier New,monospace; font-weight: 600">{{ tempModalData.id }}</span>
@@ -99,10 +111,10 @@ export default {
       refresh: true,
       deviceFormRules: {
         serialNum: [
-          {required: true, message: 'Please input serial name', trigger: 'blur'},
+          { required: true, message: 'Please input serial name', trigger: 'blur' },
         ],
         type: [
-          {required: true, message: 'Please input device type', trigger: 'blur'},
+          { required: true, message: 'Please input device type', trigger: 'blur' },
         ],
       }
     }
@@ -112,7 +124,29 @@ export default {
     empty() {
 
     },
-    switchChange(item) {
+    switchChangeInstall(item) {
+      api.deviceAPI.updateDevice(item.id, {
+        serialNum: item.serialNum,
+        type: item.type,
+        state: item.state ? "ON" : "OFF",
+        isInstalled: item.isInstalled
+      }).then(res => {
+        if (res.status === 200) {
+          this.$message({
+            type: 'success',
+            message: 'Operation Success'
+          });
+          this.refreshList();
+        } else {
+          this.$message({
+            type: 'warning',
+            message: 'Operation Failed'
+          });
+          this.refreshList();
+        }
+      })
+    },
+    switchChangeStatus(item) {
       api.deviceAPI.updateDevice(item.id, {
         serialNum: item.serialNum,
         type: item.type,
@@ -300,8 +334,8 @@ export default {
 
 
 <style scoped>
-div{
-  font-family: Poppins,serif;
+div {
+  font-family: Poppins, serif;
 }
 
 .view-wrapper {
@@ -370,6 +404,15 @@ div{
   white-space: nowrap;
 }
 
+.device-installed-text {
+  margin: 0 4vw;
+  display: inline;
+  font-size: 2.5vh;
+  color: #363636;
+  vertical-align: middle;
+}
+
+
 .device-state-text {
   margin: 0 1vw;
   display: inline;
@@ -400,26 +443,23 @@ div{
   cursor: pointer;
 }
 
-#confirm-btn{
+#confirm-btn {
   background-color: #ff4f4f !important;
   color: #fff !important;
 }
 
-#confirm-btn:hover{
+#confirm-btn:hover {
   border-color: transparent !important;
   color: #fff !important;
 }
 
-#cancel-btn {
-
-}
+#cancel-btn {}
 
 #cancel-btn:hover {
   color: #747b8b;
   background-color: #fff;
   border-color: #e3e5e8;
 }
-
 </style>
 
 <style>

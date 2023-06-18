@@ -210,7 +210,6 @@ h2 {
 }
 
 .form-group {
-  font-family: "CentralW01-Light";
   margin-bottom: 15px;
 }
 
@@ -239,7 +238,7 @@ button {
 }
 
 .new-reg-text {
-  font-size: 1vh;
+  font-size: 1.3vh;
   text-decoration: underline;
   cursor: pointer;
   font-family: "CentralW01-Light";

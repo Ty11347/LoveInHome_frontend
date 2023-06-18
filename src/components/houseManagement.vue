@@ -68,7 +68,7 @@
               <el-form label-position="right" label-width="180px" :model="adminObj" ref="houseUserForm"
                        :rules="houseFormRules" class="house-inner-form">
                 <el-form-item label="Add Admin User" style="margin-top: 20px">
-                  <el-select v-model="adminObj.id" placeholder="Please Select a User" style="width: 70%"
+                  <el-select v-model="adminObj.id" placeholder="Please Select a User" no-data-text="No Data" style="width: 70%"
                   >
                     <div v-for="avaUser in availableUsers" :key="avaUser.id">
                       <el-option :label="avaUser.username" :value="avaUser.id"></el-option>
@@ -77,7 +77,7 @@
                   <button class="add-btn" @click.prevent="addAdminUser2List(adminObj.id)">Add</button>
                 </el-form-item>
                 <el-form-item label="Add House User" style="margin-top: 20px">
-                  <el-select v-model="userObj.id" placeholder="Please Select a User" style="width: 70%"
+                  <el-select v-model="userObj.id" placeholder="Please Select a User" no-data-text="No Data" style="width: 70%"
                   >
                     <div v-for="avaUser in availableUsers" :key="avaUser.id">
                       <el-option :label="avaUser.username" :value="avaUser.id"></el-option>
@@ -109,7 +109,7 @@
               <el-form label-position="right" label-width="180px" :model="deviceObj" ref="houseUserForm"
                        :rules="houseFormRules" class="house-inner-form">
                 <el-form-item label="Add Available Device" style="margin-top: 20px">
-                  <el-select v-model="deviceObj.id" placeholder="Please Select a Device"
+                  <el-select v-model="deviceObj.id" placeholder="Please Select a Device" no-data-text="No Data"
                              style="width: 70%"
                   >
                     <div v-for="avaDevice in availableDevices" :key="avaDevice.id">
