@@ -7,7 +7,7 @@
           <el-button @click="sideMenuBarOpen = true" style="position: fixed; left: 2vw; top: 3vh; font-size: 1vw">
             MENU
           </el-button>
-          
+
           <el-drawer title="MENU" :visible.sync="sideMenuBarOpen" :direction="direction" ref="menuDrawer">
             <span v-for="item in menuItemList" :key="item.name">
               <div v-if="page !== item.page" class="menu-bar-text" @click="menuOpenItem(item.page)">
@@ -57,6 +57,7 @@ export default {
         { name: "House Management", page: 1, iconClass: "fas fa-home" },
         { name: "Parameter Management", page: 2, iconClass: "fas fa-sliders-h" },
         { name: "User Management", page: 3, iconClass: "fas fa-users" },
+        { name: "Log Out", page: 99, iconClass: "fas fa-sign-out-alt" },
       ],
     };
   },
