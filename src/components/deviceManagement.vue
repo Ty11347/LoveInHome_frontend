@@ -19,8 +19,8 @@
               <div class="device-item-title-text">Type of Device:</div>
               <div class="device-item-text">{{ item.type }}</div>
             </div>
-            
-          
+
+
             <div style="line-height: 12vh; margin-left: auto">
               <div class="device-installed-text">Installed Status</div>
               <span @click.stop="">
@@ -342,7 +342,7 @@ div {
   padding-bottom: 10vh;
   margin: 0;
   height: 100%;
-  background-color: #bcd6d2;
+  background-color: transparent;
   /*background-color: #bcd6d2;*/
 }
 

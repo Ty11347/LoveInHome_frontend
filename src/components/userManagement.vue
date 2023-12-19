@@ -1,5 +1,5 @@
 <template>
-  <div style="background-color: #bcd6d2">
+  <div style="background-color: transparent">
     <div class="operations">
       <el-row>
         <el-col :offset="4" :span="8">

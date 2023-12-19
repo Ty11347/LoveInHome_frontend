@@ -30,16 +30,16 @@ export default {
   /*text-align: center;*/
   /*color: #2c3e50;*/
   /*margin-top: 60px;*/
+  background-color: transparent;
 }
 </style>
 <style>
 html{
-  background-color: #bcd6d2;;
+  background-color: transparent;
   margin: 0;
   height: 100%;
 }
 body{
-  background-color: #bcd6d2;;
   height: auto;
   overflow: auto;
   font-family: Poppins,serif;

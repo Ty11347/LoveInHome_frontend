@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="home" v-if="page !== 99 && page !== 100">
-      <div class="home-title">LoveInHome Management System</div>
+      <div class="home-title">InHouse Management System</div>
       <div class="home-main-body">
         <div class="home-user-list-body">
           <el-button @click="sideMenuBarOpen = true" style="position: fixed; left: 2vw; top: 3vh; font-size: 1vw">
@@ -77,8 +77,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .home {
-  background-color: #bcd6d2;
-  ;
+  background-color: transparent;
   height: 100%;
 }
 
@@ -87,6 +86,7 @@ export default {
   font-size: 2vw;
   text-align: center;
   margin: 20px;
+  color: #000;
 }
 
 .home-main-body {

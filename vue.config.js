@@ -4,7 +4,7 @@ module.exports = {
   lintOnSave: false,
   productionSourceMap: false,//防止打包后泄漏源码
   devServer: {
-    port: 3000,
+    port: 11311,
     open: true,
     // overlay: {
     //   warnings: false,
@@ -12,7 +12,7 @@ module.exports = {
     // },
     proxy: {
       '/api': {
-          target: 'https://loveinhome.herokuapp.com',
+          target: 'http://localhost:11306',
           ws: true,
           changeOrigin: true,
           logLevel: 'debug',

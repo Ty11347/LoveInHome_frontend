@@ -609,7 +609,7 @@ export default {
   padding-bottom: 10vh;
   margin: 0;
   height: 100%;
-  background-color: #bcd6d2;
+  background-color: transparent;
   /*background-color: #bcd6d2;*/
 }
 
