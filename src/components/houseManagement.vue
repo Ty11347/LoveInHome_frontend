@@ -62,14 +62,14 @@
           <el-form-item label="State" prop="state" id="form-item-state">
             <el-input v-model="tempModalData.state"></el-input>
           </el-form-item>
-          <el-collapse class="house-collapse" v-model="activeNames" @change="empty" accordion
+          <el-collapse class="house-collapse" v-model="activeNames" @change="getAvailableUsersAndDevices" accordion
                        style="width: 520px; margin: 0 auto;color: #606266">
             <el-collapse-item title="User" name="user" style="color: #606266">
               <el-form label-position="right" label-width="180px" :model="adminObj" ref="houseUserForm"
                        :rules="houseFormRules" class="house-inner-form">
                 <el-form-item label="Add Admin User" style="margin-top: 20px">
-                  <el-select v-model="adminObj.id" placeholder="Please Select a User" no-data-text="No Data" style="width: 70%"
-                  >
+                  <el-select v-model="adminObj.id" placeholder="Please Select a User" no-data-text="No Data"
+                             style="width: 70%">
                     <div v-for="avaUser in availableUsers" :key="avaUser.id">
                       <el-option :label="avaUser.username" :value="avaUser.id"></el-option>
                     </div>
@@ -77,7 +77,8 @@
                   <button class="add-btn" @click.prevent="addAdminUser2List(adminObj.id)">Add</button>
                 </el-form-item>
                 <el-form-item label="Add House User" style="margin-top: 20px">
-                  <el-select v-model="userObj.id" placeholder="Please Select a User" no-data-text="No Data" style="width: 70%"
+                  <el-select v-model="userObj.id" placeholder="Please Select a User" no-data-text="No Data"
+                             style="width: 70%"
                   >
                     <div v-for="avaUser in availableUsers" :key="avaUser.id">
                       <el-option :label="avaUser.username" :value="avaUser.id"></el-option>
@@ -333,6 +334,7 @@ export default {
         res = this.formatApi(res);
         if (res.status === 200) {
           this.loading = false;
+          console.log(res.data);
           this.allHouseInfo = res.data;
         } else {
           this.$message({
@@ -548,6 +550,32 @@ export default {
       });
     },
 
+    async getAvailableUser() {
+      var res2 = await api.userAPI.getAvaUser();
+      if (res2.status === 200) {
+        this.availableUsers = res2.data;
+        this.auBackup = res2.data;
+      } else {
+        this.$message({
+          message: 'Fetch User List Failed, Status:' + res2.status,
+          type: 'warning'
+        });
+      }
+    },
+
+    async getAcailableDevice(){
+      var res1 = await api.deviceAPI.getAvaDevice();
+      if (res1.status === 200) {
+        this.availableDevices = res1.data;
+        this.adBackup = res1.data;
+      } else {
+        this.$message({
+          message: 'Fetch Device List Failed, Status:' + res1.status,
+          type: 'warning'
+        });
+      }
+    },
+
     async getAvailableUsersAndDevices() {
       var res1 = await api.deviceAPI.getAvaDevice();
       if (res1.status === 200) {
@@ -569,6 +597,7 @@ export default {
           type: 'warning'
         });
       }
+      // await this.getAvailableUser();
       var res3 = await api.paraAPI.getAllParaName();
       if (res3.status === 200) {
         this.parameters = res3.data;
