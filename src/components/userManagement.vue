@@ -3,7 +3,7 @@
     <div class="operations">
       <el-row>
         <el-col :offset="4" :span="8">
-          <el-button @click="addUser">Add User</el-button>
+<!--          <el-button @click="addUser">Add User</el-button>-->
           <el-button @click="deleteSelection">Delete User</el-button>
         </el-col>
         <el-col :span="6">
@@ -223,11 +223,11 @@ export default {
       this.userModalStatus = false;
     },
 
-    addUser() {
-      this.tempModalData = {};
-      this.userModalStatus = true;
-      this.addOrUpdate = 0;
-    },
+    // addUser() {
+    //   this.tempModalData = {};
+    //   this.userModalStatus = true;
+    //   this.addOrUpdate = 0;
+    // },
 
     switchUpdate(row) {
       this.tempModalData = row;
